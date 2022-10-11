@@ -1,0 +1,44 @@
+: /get-all-search-menu-items-list/
+    -Returns a list of all the names and ids of items with which we can search the products like Location, Categories, Groups
+
+: /get-all-search-menu-items-dict/
+    -Returns a list pf all the names and ids of items with which we can search the products like Location, Categories, Groups divided into groips
+
+: /get-all-groups/
+    -Returns the names and ids of all the groups
+
+: /get-all-locations/
+    -Returns the names and ids of all the locations
+
+: /get-all-categories/
+    -Returns the names and ids of all the categories
+
+: /get-all-status/
+    -Returns the names and ids of all the groups
+
+: /get-all-products/
+    -Returns a list of all the products
+
+    - QUERY PARAMETERS: "search_id" -> It can be the id for any of the search menu items like locations, categories, groups
+        
+        : /get-all-products?search_id=id
+            -Returns all the products with the given search_id
+
+     - QUERY PARAMETERS: "search_name" -> pass this parameter to search products that that have partial or complete matches with ItemName or ItemKnownAs
+        
+        : /get-all-products?search_name="search text"
+            -Returns all the products that contains the text in ItemName or ItemKnownAs
+
+: /get-product-details/{product-id}/
+    - Returns the details of the product with the product-id
+
+
+----------------------------------------------------------------------------
+/register/
+/login/
+/logout/
+/activate-user-account-by-admin/
+/confirm-email/<str:uidb64>/<str:token>/
+/forgot-password/
+/reset-password/
+/change-password/

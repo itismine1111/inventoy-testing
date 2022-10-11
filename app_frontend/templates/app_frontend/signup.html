@@ -1,0 +1,110 @@
+{% extends 'accounts_base.html' %}
+{% load static %}
+
+{% block title %}Sign Up{% endblock title %}
+{% block signupActiveStatus %}active{% endblock signupActiveStatus %}
+{% block displayImage %}
+    <img src="https://images.unsplash.com/photo-1587293852726-70cdb56c2866?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=872&q=80" alt="Warehouse image">
+{% endblock displayImage %}
+
+{% comment %} 
+{% block styles %}
+    <link rel="stylesheet" href="{% static 'app_frontend/css/accounts.css' %}">
+{% endblock styles %} {% endcomment %}
+
+{% block formContainer %}
+    
+    <div class="row justify-content-center">
+        <div class="col-md-6 text-center"><p>Sign up</p></div>
+    </div>
+
+    <form>
+        <!-- First Name Field -->
+        <div class="form-group mb-3">
+            <input type="text" class="form-control" id="first-name-input" aria-describedby="firstName" placeholder="First Name">
+            <small id="firstName" class="form-text text-muted"></small>
+        </div>
+
+        <!-- Last Name Field -->
+        <div class="form-group mb-3">
+            <input type="text" class="form-control" id="first-name-input" aria-describedby="lastName" placeholder="Last Name">
+            <small id="lastName" class="form-text text-muted"></small>
+        </div>
+
+        <!-- Gender Radio Buttons -->
+        <div class="form-group mb-3">
+            <label for="genderRadioOptions">Gender: &nbsp; &nbsp;</label>
+
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="genderRadioOptions" id="genderRadioMale" value="m">
+                <label class="form-check-label" for="genderRadioMale">Male</label>
+            </div>
+
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="genderRadioOptions" id="genderRadioFemale" value="f">
+                <label class="form-check-label" for="genderRadioFemale">Female</label>
+            </div>
+            
+            <!-- <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="genderRadioOptions" id="genderRadioOther" value="o" disabled>
+                <label class="form-check-label" for="genderRadioOther">Others</label>
+            </div>
+            -->
+        </div>
+
+        <!-- Date of Birth Input Field -->
+        <div class="mb-3 form-group">
+            <div class="row">
+                <div class="col-md-3"><label for="datepicker">Date of birth:</label></div>
+                <div class="col-md-9"><input type="text" name="dob" id="datepicker" autocomplete="off" class="form-control hasDatepicker" required=""></div>
+            </div>
+        </div>
+
+
+        <!-- E-mail Input Fied -->
+        <div class="form-group mb-3">
+        <input type="email" class="form-control" id="email-input" aria-describedby="emailHelp" placeholder="Enter email" autocomplete="off">
+        <small id="emailHelp" class="form-text text-muted"></small>
+        </div>
+
+        <!-- Password Input Field -->
+        <div class="form-group mb-3">
+        <input type="password" class="form-control" id="exampleInputPassword1" placeholder="Password" autocomplete="off">
+        </div>
+
+        <!-- Profile Picture Input Field -->
+        <div class="mb-3 form-group">
+            <div class="row">
+                <div class="col-md-3"><label for="formFileSm" class="form-label">Profile Picture:</label></div>
+                <div class="col-md-9"><input class="form-control form-control-sm" id="formFileSm" type="file"></div>
+            </div>
+            <!-- <label for="formFileSm" class="form-label">Profile Picture: &nbsp;</label>
+            <input class="form-control form-control-sm" id="formFileSm" type="file"> -->
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-md-6 text-center"><button type="submit" class="btn btn-md btn-warning submit-btn">Submit</button></div>
+        </div>
+    </form>
+
+{% endblock formContainer %}
+
+
+{% block scripts %}
+
+    <script>
+        $( document ).ready(function() {
+            $( function() {
+                $( "#datepicker" ).datepicker({
+                    dateFormat: 'yy/mm/dd',
+                    changeMonth: true,
+                    changeYear: true,
+                    yearRange: "-50:+0",
+                });
+            } );
+        });
+
+        
+    </script> 
+
+{% endblock scripts %}

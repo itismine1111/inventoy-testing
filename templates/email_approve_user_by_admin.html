@@ -1,0 +1,11 @@
+{% autoescape off %}
+Hi {{ admin_user.first_name }},
+Please click on the link to Approve the user with the following details
+Email: {{ user_email }}
+Name: {{ user_name}}
+Gender: {{ user_gender }}
+DOB: {{ user_dob }}
+Creation date: {{ user.created_on }}
+
+http://{{ domain }}{% url 'app_account:activate-user-account_by_admin' pk=user_id %}
+{% endautoescape %}

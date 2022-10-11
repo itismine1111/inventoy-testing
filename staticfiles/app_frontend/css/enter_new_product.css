@@ -1,0 +1,100 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+.container {
+    width: 50vw;
+    margin: 0 auto;
+}
+form {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    margin: 100px auto;
+    padding: 10px 20px;
+}
+input { 
+    border: none;
+    border-bottom: 1px solid black;
+}
+input:focus {
+    outline: none;
+}
+label {
+    font-size: 16px;
+    font-weight: 800;
+}
+.row {
+    display: flex;
+    width: 100%;
+}
+.row-1 {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+}
+.field {
+    display: flex;
+    margin-right: 10px;
+    margin-top: 10px;
+}
+.field label{
+   margin-right: 5px;
+}
+.date-row-1 {
+    width: 150px;
+}
+.row-2 {
+    width: 100%;
+}
+.name-row-2 {
+    width: 400px;
+}
+.name-row-3 {
+    width: 590px;
+}
+.name-row-4 {
+    width: 548px;
+}
+.radio-container {
+    width: 600px;
+    display: flex;
+}
+.row-5 {
+    margin-top: 10px;
+}
+.row-6 {
+    width: 100%;
+}
+.row-6 p {
+    width: 20%;
+}
+.row-5 p, .row-6 p, .row-7 p, .row-8 p {
+    margin-top: 10px;
+    margin-right: 10px;
+}
+.status-row-8 {
+    width: 100px;
+    margin-right: 5px;
+    margin-left: -100px;
+}
+.row-8-radio {
+    width: 325px !important;
+}
+.text-row-16 {
+    width: 500px;
+}
+.img-input {
+    height: 30px;
+    width: 195px;
+    margin-right: 20px;
+}
+.img {
+    height: 175px;
+    width: 175px;
+    object-fit: contain;
+    border-radius: 5px;
+    margin-left: 10px;
+    margin-top: 10px;
+}

@@ -1,0 +1,144 @@
+127.0.0.1:8000
+inventorytesting.herokuapp.com
+[] Moment.js to parse dates
+    (https://stackoverflow.com/questions/38251763/moment-js-how-to-convert-date-string-into-date)
+
+
+[-] check if an email already exists
+[-] register users is giving an error
+[-] Change serialization of foreign fields in InventorySerializer 
+[-]email login
+[-] search by product names
+[-] search by names of groups, categories, locations and status
+[-]complete this table. how to modify when login ad logout
+    Login History table:
+        user id
+        signin time
+        signout time
+        device id
+        device_type
+[-] change the uuid to id in every  model in product 
+[-] modify the response of the premission class isAuthenticated
+[-] make google sheets for apis  
+    api-name    url     parameters      response
+[-] get inactive users 
+[-] show all inactive users at one place
+[-] return all search items names
+[-] add permission classes to the apis
+[-] send email for approval of user account to admin 
+[-] add and remove items from inventory 
+[-] create and update api for inventory
+[-] get approval for each new product added 
+[?] api to get list of all the devices where the user is logged in
+[-] add profile picture fields
+[-] send whole user details after login and register
+[-] add fields to register - first_name, dob, gender, profile_picture ....
+[-] validations on the register fields
+[-] get api for inventoryStockTransaction
+    [-] all the details
+    [-] search filters ( )
+    [-] ordering filters ( )
+[-] post api for inventoryStockTransaction
+    [-] in
+    [-] out
+[-] ask about RecordActive, RecordFlag, RecordFlagCalc
+[-] update inventory
+[-] update user
+Todo:
+[] Complete the add new transaction form 
+
+[-] fill the product data
+[-] Complete the form for groups
+[-] Make a copy of it for locations, categories and suppliers
+[] Complete the product form 
+
+
+BUGS:
+[-] Sort when no search and search_by is present. it is not sortning
+    - Maybe convertingit to kist is doing that, but it is working fine on main page
+
+[-] Index page format issue with reorder level field
+
+
+Working On:
+[-] On change on list page
+[-] Change buttons css in all the forms
+[-] Search Menu dropdowns
+[-] Create PDF
+[-] delete product
+[-] Reset form after delete or select the first product from list
+[-] status
+[-] add all locations, groups, categories and update when chosen
+[-] Change Search Products api on main page and take into account all the search criteria
+[-] On change on Main page
+
+
+
+-> Home:
+[] pagination in get apis 
+[] send mail to admin to activate them 
+
+[] Complete New Edit
+    [] Fill the sds data in backend API
+    [] Next And Prev on New Edit page
+    [] On change on New Entry Page
+[] Option to add multiple Locations
+[] Option to add multiple Categories
+[] Option to add multiple Groups?
+
+[] changes in invnetory stock transaction 
+    [] ability up update fields there only like, description, lot number, date, unit measure, value.
+    [-] update api for stock transaction.
+    [-] changes in in and out api
+
+[] Change modify date when updated
+[] Add radio buttons on new edit page Re-order and New-Order
+[] Managing Users Page
+    [] update api for users
+    [] get list of all the users to activate them 
+
+[] Send email after each new product is added to admins to get approval
+[] Add um drop down in stock transactions list and then select the correct one.
+
+Bugs: 
+[] The 4 values that i calculated in Inventory serializer are showing zero always
+[] After a field is updated on the index page, get the whole data again and fill the form
+[] Date is not updating in listener chagne class on index page
+[] SDS on file checkbox is not updating in neither Inventory nor SDSRecords on change
+[] Sorting not working in print report
+[] No validations on index page form
+[] No validations on index page stock transactions form
+[] onchange field UnitsMeasure on main page
+[] Show some buttons and some options to only admin, hide it from all other users
+[] In list_page- If we delete and not select anything
+    i.e no group is selected- then show all the products
+[] When a field is updated in index product form, refresh the data
+[] Add a new tag to the newly added products list 
+[] Update selectd button name when product name field is updated
+[] When resetting the form, transactins are still present
+[] change Requested by and Approved by to emails on index page
+[] Give Option to add new product on index page
+[] add option to change image on index page
+[] date last purchased and date last used and date modified has to be modified
+
+{} SHOW NAME IN REQUESTED BY AND APPPROVED BY FIELDS ON INDEX PAGE
+
+[] Tell to chirag sir
+    changes in in/out api
+
+
+
+[-] date not changing
+[-] um not changing
+[-] sds on file not changing
+[] groups, locations, supplliers, categories not changing
+[-] active, inactive not changing
+
+[] date in stock transactions is not getting changed
+[] Product with same name already exist validation on form new entry 
+
+
+[] make the event listener on change to update the fields
+    [] atleast some of them like status, groups, locations, suppliers, dates, categories, um...
+
+[] add event listener to in and out buttons in stock transactions to chagne the type and type id in stock transactions

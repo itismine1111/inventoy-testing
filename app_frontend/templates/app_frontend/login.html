@@ -1,0 +1,102 @@
+{% extends 'accounts_base.html' %}
+{% load static %}
+
+{% block title %}Log In{% endblock title %}
+{% block loginActiveStatus %}active{% endblock loginActiveStatus %}
+{% block displayImage %}
+    <img src="https://images.unsplash.com/photo-1587293852726-70cdb56c2866?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=872&q=80" alt="Warehouse image">
+{% endblock displayImage %}
+
+{% comment %} 
+{% block styles %}
+    <link rel="stylesheet" href="{% static 'app_frontend/css/accounts.css' %}">
+{% endblock styles %} {% endcomment %}
+
+{% block formContainer %}
+    
+    <div class="row justify-content-center">
+        <div class="text-center form-heading"><p id="form-header-label">Log In</p></div>
+    </div>
+
+    <form id="login-form" action={% url 'app_account:login' %}>
+
+        <!-- E-mail Input Fied -->
+        <div class="form-group mb-3">
+        <input type="email" class="form-control" id="email-input" aria-describedby="emailHelp" placeholder="Enter email" autocomplete="off">
+        <small id="emailHelp" class="form-text text-muted"></small>
+        </div>
+
+        <!-- Password Input Field -->
+        <div class="form-group mb-3">
+        <input type="password" class="form-control" id="password-input" placeholder="Password" autocomplete="off">
+        </div>
+        <p id="errors-para"></p>
+
+        <div class="forgotPasswordContainer"><a href={% url 'app_frontend:forgot-password' %}><p> Forgot Password? </p></a></div>
+
+        <div class="row justify-content-center">
+            <div class="text-center"><button type="submit" class="btn btn-md btn-warning submit-btn">Log In</button></div>
+        </div>
+    </form>
+
+{% endblock formContainer %}
+
+
+{% block scripts %}
+
+    <script>
+        $( document ).ready(function() {
+            //scripts go here
+            const BASE_URL = "127.0.0.1:8000";
+            // const BASE_URL = $("#Url").attr("data-url");
+
+            $("#login-form").submit(function(event){
+                event.preventDefault(); // Prevent actual form submit
+
+                var form = $(this);
+                var url = form.attr('action');
+                console.log(typeof(form.serialize()));
+                console.log(form.serialize());
+
+                var formdata = {
+                    name: $("#id_name").val(),
+                    email: $("#email-input").val(),
+                    password:$("#password-input").val(),
+                    device_type:"w",
+                    device_token:"",
+                };
+
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    data: formdata,
+                    success: function(json_data){
+                        console.log(json_data['data']['token']);
+                        if(json_data['success']===true){
+                            window.localStorage.setItem('token', json_data['data']['token']);
+                            window.localStorage.setItem('user_id', json_data['data']['user']['id']);
+                            window.localStorage.setItem('user_email', json_data['data']['user']['email']);
+                            // console.log("TOKEN FROM LS",window.localStorage.getItem("token"));
+                            // console.log("BASE_URL = "+ BASE_URL);
+                            // redirect to the main page
+                            window.location.href = "//" + BASE_URL;
+                        }
+                        
+                    },
+                    error: function(json_data){
+                        console.log(json_data['responseJSON'])
+                        if(json_data['responseJSON']['success']===false){
+                            $("#errors-para").html(json_data['responseJSON']['message']);
+                        }
+                    }
+                });
+
+
+            });
+
+        });
+
+        
+    </script> 
+
+{% endblock scripts %}

@@ -1,0 +1,73 @@
+{% extends 'base.html' %} 
+{% load static %} 
+{% block title %}Sign Up{% endblock title %} 
+{% block styles %}
+    <link rel="stylesheet" href="{% static 'app_frontend/css/accounts.css' %}" />
+{% endblock styles %} 
+
+{% block content %}
+
+    <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">Translarity</a>
+        <button
+        class="navbar-toggler"
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#navbarContent"
+        aria-controls="navbarSupportedContent"
+        aria-expanded="false"
+        aria-label="Toggle navigation"
+        >
+        <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarContent">
+        <ul class="navbar-nav ms-auto mb-3 mb-lg-0">
+            <li class="nav-item">
+            <a
+                class="nav-link {% block loginActiveStatus %}{% endblock loginActiveStatus %}"
+                href="{% url 'app_frontend:login' %}"
+                >Log In</a
+            >
+            </li>
+            <li class="nav-item">
+            <a
+                class="nav-link {% block signupActiveStatus %}{% endblock signupActiveStatus %}"
+                href="#"
+                >Sign up</a
+            >
+            </li>
+            <li class="nav-item">
+            <a class="nav-link" href="#">Help?</a>
+            </li>
+        </ul>
+        </div>
+    </div>
+    </nav>
+
+    <div class="background-container">
+    <div class="container-box">
+        <div class="img-container">
+        {% block displayImage %} {% endblock displayImage %}
+        </div>
+        <div class="form-container">
+        {% block formContainer %} {% endblock formContainer %}
+        </div>
+    </div>
+    </div>
+
+    <script>
+    $(document).ready(function () {
+        $(function () {
+        $("#datepicker").datepicker({
+            dateFormat: "yy/mm/dd",
+            changeMonth: true,
+            changeYear: true,
+            yearRange: "-50:+0",
+        });
+        });
+    });
+    </script>
+    {% block scripts %} 
+    {% endblock scripts %} 
+{% endblock content %}

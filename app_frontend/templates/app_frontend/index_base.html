@@ -1,0 +1,257 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="keywords" content="" />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+    {% block title %}{% endblock title %}
+    
+
+    {% comment %} {% static 'app_frontend/css/accounts.css' %} {% endcomment %}
+
+    <!-- ===== Bootstrap CSS ===== -->
+    <link
+      href="{% static 'lib/bootstrap/dist/css/bootstrap.min.css' %}"
+      rel="stylesheet"
+    />
+
+    <!-- ====Bootstrap Select CSS -->
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.6.3/css/bootstrap-select.min.css" />
+    
+    <!-- ===== Plugin CSS ===== -->
+    {% comment %} <link
+      href="{% static 'plugins/components/chartist-js/dist/chartist.min.css' %}"
+      rel="stylesheet"
+    />
+    <link
+      href="{% static 'plugins/components/chartist-plugin-tooltip-master/dist/chartist-plugin-tooltip.css' %}"
+      rel="stylesheet"
+    /> {% endcomment %}
+
+    <!-- ===== Animation CSS ===== -->
+    <link
+      href="{% static 'app_frontend/css/ccss/animate.css' %}"
+      rel="stylesheet"
+    />
+
+    <!-- ===== Custom CSS ===== -->
+    <link
+      href="{% static 'app_frontend/css/ccss/style.css' %}"
+      rel="stylesheet"
+    />
+    <link
+      href="{% static 'plugins/components/icheck/skins/all.css' %}"
+      rel="stylesheet"
+    />
+
+    <!-- ===== Color CSS ===== -->
+    <link
+      href="{% static 'app_frontend/css/ccss/colors/yellow.css' %}"
+      id="theme"
+      rel="stylesheet"
+    />
+
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.2/css/all.min.css"
+      integrity="sha512-1sCRPdkRXhBV2PBLUdRb4tMg1w2YPf37qatUFeS7zlBy7jJI8Lf4VHwWfZZfpXtYSLy85pkm9GaYVYMfw5BC1A=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    {% comment %} bootstrap-multiselect css {% endcomment %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/1.1.2/css/bootstrap-multiselect.css" integrity="sha512-tlP4yGOtHdxdeW9/VptIsVMLtgnObNNr07KlHzK4B5zVUuzJ+9KrF86B/a7PJnzxEggPAMzoV/eOipZd8wWpag==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    {% block styles %}{% endblock styles %}
+
+    <style>
+      /* MY CSS */
+
+      .buttons-container {
+        padding-top: 20px;
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        flex-direction: column;
+        width: 100%;
+        /* height: 250px; */
+      }
+
+      .buttons-container button {
+        margin-top: 5px;
+        width: 100%;
+        height: 40px;
+        padding: 15px 20px;
+        background-color: rgb(248, 247, 247);
+        border: none;
+      }
+      .buttons-container .active-button {
+        background-color: #e79b22;
+        color: #fff;
+      }
+      .open-btn {
+        font-size: 24px;
+        position: relative;
+        cursor: pointer;
+        height: 100%;
+        margin-top: 15px;
+        margin-left: 10px;
+        color: white;
+      }
+      .menu {
+        height: 100vh;
+        width: 200px;
+        background-color: #f2a225;
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 1000;
+        color: #fff;
+        transform: translateX(-100%);
+        transition: 0.1s linear 0s;
+        padding: 20px;
+      }
+      .close-btn {
+        font-size: 24px;
+        color: white;
+        cursor: pointer;
+      }
+      .active-menu {
+        transform: translateX(0%);
+      }
+
+      .st-heading{
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+      }
+
+      #st-add-transaction-btn{
+        background-color: #e79b22;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        height: 30px;
+      }
+
+      #st-lot-input, #st-unit-measure-input, #st-units-input{
+        width: 50px;
+      }
+
+      .active-yellow-button{
+        background: rgb(247, 171, 52)  !important; 
+        color: white !important;
+      }
+
+      #inventory-transactions-div{
+        overflow-y: scroll;
+        max-height: 600px;
+      }
+
+      /* input[type="date"]::-webkit-datetime-edit, input[type="date"]::-webkit-inner-spin-button, input[type="date"]::-webkit-clear-button {
+        color: #fff;
+        position: relative;
+      }
+
+      input[type="date"]::-webkit-datetime-edit-year-field{
+        position: absolute !important;
+        border-left:1px solid #8c8c8c;
+        padding: 2px;
+        color:#000;
+        left: 56px;
+      }
+
+      input[type="date"]::-webkit-datetime-edit-month-field{
+        position: absolute !important;
+        border-left:1px solid #8c8c8c;
+        padding: 2px;
+        color:#000;
+        left: 26px;
+      }
+
+
+      input[type="date"]::-webkit-datetime-edit-day-field{
+        position: absolute !important;
+        color:#000;
+        padding: 2px;
+        left: 4px;
+        
+      } */
+
+      
+
+    </style>
+  </head>
+
+  <body class="fix-header" style="font-size: 13px">
+    <!-- ===== Main-Wrapper ===== -->
+    <div id="wrapper">
+      <!-- <div class="preloader">
+            <div class="cssload-speeding-wheel"></div>
+        </div> -->
+        {% block topNavigation %}
+        
+        {% endblock topNavigation %}
+
+
+        {% block leftSidebar %}
+        
+        {% endblock leftSidebar %}
+
+        {% block pageContent %}
+        
+        {% endblock pageContent %}
+      
+    
+    </div>
+    <!-- ===== Main-Wrapper-End ===== -->
+    <!-- ==============================
+        Required JS Files
+    =============================== -->
+    <!-- ===== jQuery ===== -->
+    <script src="{% static 'plugins/components/jquery/dist/jquery.min.js' %}"></script>
+    <!-- ===== Bootstrap JavaScript ===== -->
+    <script src="{% static 'lib/bootstrap/dist/js/bootstrap.min.js' %}"></script>
+
+    <!-- ==== Bootstrap Select JavaScript ==== -->
+    <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.6.3/js/bootstrap-select.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/1.1.2/js/bootstrap-multiselect.min.js" integrity="sha512-lxQ4VnKKW7foGFV6L9zlSe+6QppP9B2t+tMMaV4s4iqAv4iHIyXED7O+fke1VeLNaRdoVkVt8Hw/jmZ+XocsXQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    
+
+
+    {% block scripts %}{% endblock scripts %}
+   <!-- ==== SweetAlert ==== -->
+   <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+
+    <!-- ===== Slimscroll JavaScript ===== -->
+    <script src="{% static 'app_frontend/js/cjs/jquery.slimscroll.js' %}"></script>
+    <!-- ===== Wave Effects JavaScript ===== -->
+    <script src="{% static 'app_frontend/js/cjs/waves.js' %}"></script>
+
+    <!-- ===== Menu Plugin JavaScript ===== -->
+    <script src="{% static 'app_frontend/js/cjs/sidebarmenu.js' %}"></script>
+
+    <!-- ===== Custom JavaScript ===== -->
+    <script src="{% static 'app_frontend/js/cjs/custom.js' %}"></script>
+    <!-- ===== Plugin JS ===== -->
+    <script src="{% static 'plugins/components/chartist-js/dist/chartist.min.js' %}"></script>
+    <script src="{% static 'plugins/components/chartist-plugin-tooltip-master/dist/chartist-plugin-tooltip.min.js' %}"></script>
+    <script src="{% static 'plugins/components/sparkline/jquery.sparkline.min.js' %}"></script>
+    <script src="{% static 'plugins/components/sparkline/jquery.charts-sparkline.js' %}"></script>
+    <script src="{% static 'plugins/components/knob/jquery.knob.js' %}"></script>
+    <script src="{% static 'plugins/components/easypiechart/dist/jquery.easypiechart.min.js' %}"></script>
+    <script src="{% static 'plugins/components/icheck/icheck.min.js' %}"></script>
+    <script src="{% static 'plugins/components/icheck/icheck.init.js' %}"></script>
+    <script src="{% static 'app_frontend/js/cjs/db1.js' %}"></script>
+    <!-- ===== Style Switcher JS ===== -->
+    <script src="{% static 'plugins/components/styleswitcher/jQuery.style.switcher.js' %}"></script>
+
+    
+     
+    
+  </body>
+</html>

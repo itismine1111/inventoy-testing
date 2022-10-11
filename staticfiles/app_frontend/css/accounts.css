@@ -1,0 +1,104 @@
+.background-container {
+  height: 100vh;
+  width: 100%;
+  background: linear-gradient(
+    to right,
+    #e79b22 0%,
+    #e79b22 20%,
+    #f0d3b9 20%,
+    #f0d3b9 100%
+  );
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.container-box {
+  height: 80%;
+  width: 75%;
+  background-color: cyan;
+  margin-top: 40px;
+  display: flex;
+}
+
+.img-container {
+  height: 100%;
+  width: 50%;
+  background-color: salmon;
+}
+
+.img-container img {
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+}
+
+.form-container {
+  height: 100%;
+  width: 50%;
+  background-color: white;
+  padding: 5px 15px;
+  overflow: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+#form-header-label {
+  font-size: 25px;
+  font-weight: 500;
+  color: #e79b22;
+}
+
+.form-heading {
+  width: 100%;
+}
+
+.label-container {
+  display: flex;
+  font-size: 18px;
+  font-weight: 600;
+  color: black;
+}
+
+.submit-btn {
+  background-color: #e79b22 !important;
+  color: white !important;
+  width: 200px;
+}
+
+/* input {
+    border-top-style: hidden ;
+    border-right-style: hidden;
+    border-left-style: hidden;
+    border-bottom-style: groove;
+    background-color: white;
+} */
+
+/* Login Page */
+.forgotPasswordContainer {
+  display: flex;
+  justify-items: flex-end;
+}
+
+.forgotPasswordContainer a {
+  text-decoration: none;
+}
+
+.forgotPasswordContainer a p {
+  color: #9e9e9e;
+  font-size: 14px;
+}
+
+#errors-para,
+#errors-para-forgot-password,
+#errors-para-confirm-otp {
+  font-size: 14px;
+  color: red;
+}
+
+#success-para-forgot-password {
+  font-size: 14px;
+  color: green;
+}

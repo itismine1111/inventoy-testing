@@ -1,0 +1,112 @@
+{% extends 'accounts_base.html' %}
+{% load static %}
+
+{% block title %}Confirm Otp{% endblock title %}
+{% block loginActiveStatus %}{% endblock loginActiveStatus %}
+{% block displayImage %}
+    <img src="https://images.unsplash.com/photo-1587293852726-70cdb56c2866?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=872&q=80" alt="Warehouse image">
+{% endblock displayImage %}
+
+{% comment %} 
+{% block styles %}
+    <link rel="stylesheet" href="{% static 'app_frontend/css/accounts.css' %}">
+{% endblock styles %} {% endcomment %}
+
+{% block formContainer %}
+    
+    <div class="row justify-content-center">
+        <div class="text-center"><p id="form-header-label">Confirm OTP</p></div>
+    </div>
+
+    <form id="forgot-password-form" action={% url 'app_account:confirm-otp-forgot-password' %}>
+
+        
+        <div class="label-container">
+            <p>Email:&nbsp;<p id="email"></p></p>
+        </div>
+        
+        
+
+        <!-- otp Input Fied -->
+        <div class="form-group mb-3">
+            <input type="text" class="form-control" id="otp-input"  placeholder="Enter the OTP" autocomplete="off">
+        </div>
+
+        <p id="errors-para-confirm-otp"></p>
+
+        <div class="row justify-content-center">
+            <div class="text-center"><button type="submit" class="btn btn-md btn-warning submit-btn">Confirm</button></div>
+        </div>
+
+        <input type="hidden" id="Url" data-url="{% url 'app_frontend:reset-password' %}" />
+    </form>
+
+{% endblock formContainer %}
+
+
+{% block scripts %}
+
+    <script>
+        $( document ).ready(function() {
+            $("#email").html(window.localStorage.getItem("email"))
+
+            $("#forgot-password-form").submit(function(event){
+                event.preventDefault(); // Prevent actual form submit
+
+                var form = $(this);
+                var url = form.attr('action');
+                console.log(typeof(form.serialize()));
+                console.log(form.serialize());
+
+                var formdata = {
+                    email: window.localStorage.getItem("email"),
+                    otp: $("#otp-input").val(),
+                    device_type: "I",
+                    device_token: "",
+                };
+
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    data: formdata,
+                    success: function(json_data){
+                        console.log(json_data);
+                        if(json_data['success']===true){
+                            window.localStorage.setItem("token", json_data['data']['token'])
+                            $("#errors-para-forgot-password").html("");
+                            $("#success-para-forgot-password").html(json_data['message']);
+                            // redirect to the change password Page
+                            var url = $("#Url").attr("data-url");
+                            window.location.href = url;
+
+                        }
+                
+                    },
+                    error: function(json_data){
+                        console.log(json_data['responseJSON'])
+                        if(json_data['responseJSON']['success']===false){
+                            $("#errors-para-confirm-otp").html(json_data['responseJSON']['message']);
+                            // $("#success-para-forgot-password").html("");
+                        }
+                        //console.log(json_data['responseJSON']['non_field_errors']);
+                        //var non_field_errors = json_data['responseJSON']['non_field_errors'];
+
+                        //for(let i=0; i<non_field_errors.length; i++){
+                        //    console.log(non_field_errors[i]);
+                        //}
+
+                        //for(let i=0; i<non_field_errors.length; i++){
+                        //    console.log(non_field_errors[i]);
+                        //}
+                    }
+                });
+
+
+            });
+
+        });
+
+        
+    </script> 
+
+{% endblock scripts %}

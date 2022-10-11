@@ -1,0 +1,458 @@
+{% extends 'app_frontend/index_base.html' %}
+{% load static %}
+
+{% block title %}
+<title>New Product Entry</title>
+{% endblock title %}
+
+{% block styles %}
+<!-- <link
+    href="{% static 'app_frontend/css/enter_new_product.css' %}"
+    rel="stylesheet"
+    /> -->
+
+<style>
+  #approval-form-h1 {
+    font-size: 25px;
+    font-weight: 800;
+    margin-bottom: 3px !important;
+  }
+
+  #approval-form-hr {
+    border: none;
+    height: 2px;
+    background-color: rgb(38, 175, 255);
+    margin-top: 0px !important;
+  }
+
+  #chemical-purhase-report-hr {
+    border: none;
+    height: 1px;
+    background-color: #333;
+    margin-top: 0px !important;
+  }
+
+  #chemical-purchase-report-row {
+    flex-direction: row-reverse;
+  }
+
+  #company-name {
+    font-size: 28px;
+    font-weight: 500;
+  }
+
+  #Supplier {
+    padding: 0px;
+  }
+
+  .forms-drpdown-div {
+    min-width: 220px;
+    background-color: #ECECEC;
+  }
+
+  .form-dropdown-a {
+    font-size: 16px;
+    text-decoration: none;
+    color: black
+  }
+
+  #snackbar {
+    visibility: hidden;
+    min-width: 250px;
+    margin-left: -125px;
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    border-radius: 2px;
+    padding: 16px;
+    position: fixed;
+    z-index: 1;
+    left: 50%;
+    bottom: 30px;
+    font-size: 17px;
+  }
+
+  #snackbar.show {
+    visibility: visible;
+    -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
+    animation: fadein 0.5s, fadeout 0.5s 2.5s;
+  }
+
+  @-webkit-keyframes fadein {
+    from {
+      bottom: 0;
+      opacity: 0;
+    }
+
+    to {
+      bottom: 30px;
+      opacity: 1;
+    }
+  }
+
+  @keyframes fadein {
+    from {
+      bottom: 0;
+      opacity: 0;
+    }
+
+    to {
+      bottom: 30px;
+      opacity: 1;
+    }
+  }
+
+  @-webkit-keyframes fadeout {
+    from {
+      bottom: 30px;
+      opacity: 1;
+    }
+
+    to {
+      bottom: 0;
+      opacity: 0;
+    }
+  }
+
+  @keyframes fadeout {
+    from {
+      bottom: 30px;
+      opacity: 1;
+    }
+
+    to {
+      bottom: 0;
+      opacity: 0;
+    }
+  }
+
+  .bar {
+    position: relative;
+    /* width: 550px; 
+    background-color: #fff;
+    height: 40px;
+    top: -75px; */
+  }
+
+  .search {
+    width: 100%;
+    padding: 10px 0px 10px 35px;
+    border: none;
+    font-size: 18px;
+  }
+
+  .search:focus {
+    outline: none;
+  }
+
+  /* .bar i {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 16px;
+    left: 10px;
+  } */
+
+
+  .suggestion-box {
+    position: absolute;
+    width: 100%;
+    display: 'relative';
+    background-color: rgb(247, 250, 252);
+    max-height: 200px;
+    min-height: 100px;
+    overflow-y: scroll;
+    display: none;
+    -ms-overflow-style: none;
+    /* IE and Edge */
+    scrollbar-width: none;
+    /* Firefox */
+  }
+
+  .suggestion-list {
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    list-style-type: none;
+    font-size: 16px;
+    width: 100%;
+    padding: 10px;
+  }
+
+  .suggestion-box::-webkit-scrollbar {
+    display: none;
+    /* Chrome Scrollbar*/
+  }
+
+  .suggestion-list-item {
+    cursor: pointer;
+    padding-left: 5px;
+    line-height: 40px !important;
+    /* padding: 10px 10px 10px 35px; */
+  }
+
+  .suggestion-list-item:hover {
+    background-color: rgb(250, 177, 64);
+    color: white;
+  }
+
+  .list-links-a {
+    margin: 0px !important;
+    padding: 0px !important;
+    text-decoration: none !important;
+    color: black !important;
+  }
+</style>
+{% endblock styles %}
+
+
+{% block topNavigation %}
+
+<!-- ===== Top-Navigation ===== -->
+<nav class="navbar navbar-default navbar-static-top m-b-0">
+  <div class="navbar-header">
+    <a class="navbar-toggle font-16 hidden-sm hidden-md hidden-lg" href="javascript:void(0)" data-toggle="collapse"
+      data-target=".navbar-collapse">
+      <i class="fa fa-bars"></i>
+    </a>
+    <ul class="nav navbar-top-links navbar-left">
+
+    </ul>
+    <ul class="nav navbar-top-links navbar-left hidden-xs">
+      <li>
+        <form role="search" class="app-search hidden-xs">
+          <!-- <i class="fa-solid fa-magnifying-glass"></i>
+            <input
+              type="text"
+              placeholder="Search..."
+              class="form-control"
+            /> -->
+          {% comment %} <select class="selectpicker" data-show-subtext="true" data-live-search="true">
+            <option data-subtext="Rep California">Tom Foolery</option>
+            <option data-subtext="Sen California">Bill Gordon</option>
+            <option data-subtext="Sen Massacusetts">Elizabeth Warren</option>
+            <option data-subtext="Rep Alabama">Mario Flores</option>
+            <option data-subtext="Rep Alaska">Don Young</option>
+          </select> {% endcomment %}
+
+          <div class="bar">
+            <div class="input">
+              <i class="fa-solid fa-magnifying-glass"></i>
+              <input type="text" placeholder="Search Group..." class="form-control" id="group-search-input" autocomplete="off"/>
+            </div>
+            <div class="suggestion-box" id="group-search-results-div">
+              <p style="font-size: 16px; margin: 10px; display: none;" id="nothing-found-para">No Groups Found</p>
+              <ul class="suggestion-list" id="group-search-suggestion-list">
+
+                <!-- <a href="https://www.google.com" class="list-links-a">
+                  <li class="suggestion-list-item">
+                    Suggestion 1
+                  </li>
+                </a> -->
+
+              </ul>
+            </div>
+          </div>
+
+
+
+        </form>
+      </li>
+    </ul>
+    <ul class="nav navbar-top-links navbar-left">
+      <!-- <li class="dropdown">
+        <a class="dropdown-toggle waves-effect waves-light font-16" data-toggle="dropdown" href="javascript:void(0);"
+          id="previous-product-select-btn">
+          <i class="fa-solid fa-angle-left"></i>
+        </a>
+      </li>
+      <li class="dropdown">
+        <a class="dropdown-toggle waves-effect waves-light font-16" data-toggle="dropdown" href="javascript:void(0);"
+          id="next-product-select-btn">
+          <i class="fa-solid fa-angle-right"></i>
+        </a>
+      </li> -->
+
+      <li class="dropdown">
+        <a class="dropdown-toggle waves-effect waves-light font-16" data-toggle="dropdown" href="javascript:void(0);"
+          id="sort-btn-asc">
+          <!-- <i class="ti-upload"></i> -->
+          <i class="fa-solid fa-upload"></i>
+          <span style="font-size: 16px">Sort</span>
+        </a>
+      </li>
+      <li class="dropdown">
+        <a class="dropdown-toggle waves-effect waves-light font-16" data-toggle="dropdown" href="javascript:void(0);"
+          id="sort-btn-dec">
+          <!-- <i class="ti-download"></i> -->
+          <i class="fa-solid fa-download"></i>
+          <span style="font-size: 16px">Sort</span>
+        </a>
+      </li>
+      <li class="dropdown">
+        <a class="dropdown-toggle waves-effect waves-light font-16" data-toggle="dropdown" href="javascript:void(0);"
+          id="print-btn">
+          <!-- <i class="ti-printer"></i> -->
+          <i class="fa-solid fa-print"></i>
+          <span style="font-size: 16px">Print</span>
+        </a>
+      </li>
+
+      <li class="dropdown">
+        <a class="dropdown-toggle waves-effect waves-light font-16" data-toggle="dropdown" href="javascript:void(0);"
+          id="home-btn">
+          <!-- <i class="ti-home"></i> -->
+          <i class="fa-solid fa-house"></i>
+          <span style="font-size: 16px">Home</span>
+        </a>
+      </li>
+    </ul>
+  </div>
+</nav>
+
+
+
+{% endblock topNavigation %}
+
+
+
+{% block pageContent %}
+<div id="snackbar">Some text some message..</div>
+
+
+<div class="table-div" style="padding: 30px; margin:30px;" id="list-table-div">
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th scope="col" style="width:15%">Item Name</th>
+        <th scope="col" style="width:5%">Stock</th>
+        <th scope="col" style="width:5%">Min. Level</th>
+        <th scope="col" style="width:5%">UM</th>
+        <th scope="col" style="width:20%">Description</th>
+        <th scope="col" style="width:10%">Category</th>
+        <th scope="col" style="width:10%">Availability</th>
+        <th scope="col" style="width:15%">Locations</th>
+      </tr>
+    </thead>
+    <tbody id="list-table-body">
+      {% comment %} <tr>
+        <!-- Product name -->
+        <th scope="row">
+          <input type="text" class="form-control" id="product-name" placeholder="Comet or Toilet Cleaner"
+            name="ItemName" />
+        </th>
+        <!-- Product Stock Status -->
+        <td>
+          <input type="text" class="form-control" id="product-stock-status" placeholder="Stock" readonly />
+        </td>
+
+        <!-- Minumum Level -->
+        <td>
+          <input type="text" class="form-control" id="minimum-level" placeholder="Min Level" />
+        </td>
+
+        <!-- UM -->
+        <td>
+          <input type="text" class="form-control" id="Category" placeholder="Um" readonly />
+        </td>
+
+        <!-- Description -->
+        <td>
+          <textarea name="" class="form-control" id="Description" cols="8" rows="4">
+              </textarea>
+        </td>
+
+        <!-- Category -->
+        <td>
+          <input type="text" class="form-control" id="Category" placeholder="Category" readonly />
+        </td>
+
+        <!-- Availability -->
+        <td>
+          <input type="text" class="form-control" id="availability" placeholder="Availability" readonly />
+        </td>
+
+        <!-- Location -->
+        <td>
+          <input type="text" class="form-control" id="Location" placeholder="Location" readonly />
+        </td>
+      </tr> {% endcomment %}
+
+    </tbody>
+  </table>
+
+
+</div>
+
+<!-- <div class="table-div" style="padding: 30px; margin:30px;" id="list-table-div-printable">
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th scope="col" style="width:3%">#</th>
+        <th scope="col" style="width:15%">Item Name</th>
+        <th scope="col" style="width:5%">Stock</th>
+        <th scope="col" style="width:5%">Min. Level</th>
+        <th scope="col" style="width:5%">UM</th>
+        <th scope="col" style="width:20%">Description</th>
+        <th scope="col" style="width:10%">Category</th>
+        <th scope="col" style="width:10%">Availability</th>
+      </tr>
+    </thead>
+    <tbody id="list-table-body-printable">
+      <tr>
+        <td></td>
+        <td>This is the Location</td>
+
+      </tr>
+
+      <tr>
+        <th scope="row">
+          <p>1</p>
+        </th>
+
+        <td>
+          <p>Product Name</p>
+        </td>
+
+        <td>
+          <p>Stock</p>
+        </td>
+
+        <td>
+          <p>Min. Level</p>
+        </td>
+
+        <td>
+          <p>ltr</p>
+        </td>
+
+        <td>
+          <p>This is the description </p>
+
+        </td>
+
+        <td>
+          <p>Category</p>
+        </td>
+
+        <td>
+          <p>In-Stock</p>
+        </td>
+
+      </tr>
+
+    </tbody>
+  </table> -->
+
+
+</div>
+
+
+
+
+
+
+{% endblock pageContent %}
+
+
+{% block scripts %}
+<script src="{% static 'app_frontend/js/list_products_page_script.js' %}"></script>
+{% endblock scripts %}

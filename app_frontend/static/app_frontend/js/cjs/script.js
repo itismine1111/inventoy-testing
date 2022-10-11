@@ -1,0 +1,2503 @@
+$(document).ready(function () {
+  let login_user_details = null;
+  let current_selected_product = null;
+  let st_input_active = false;
+  let st_in_selected = false;
+  let st_out_selected = false;
+  let last_used_filter_category = "";
+  let last_used_filter_category_value = 0;
+  // const BASE_URL = $("#Url").attr("data-url");
+  var BASE_URL = "127.0.0.1:8000";
+  // var URL_GET_ALL_CATEGORIES = BASE_URL + "api/get-all-categories/";
+  // var URL_GET_ALL_CATEGORIES = "/api/get-all-categories/";
+  var GET_PRODUCT_URL = "/api";
+  var URL_LOGIN = BASE_URL + "/login/";
+  var GET_LOGIN_USER_DETAILS = "//" + BASE_URL + "/api/get-login-user-details/";
+  var URL_NEW_PRODUCT_ENTRY_FORM = BASE_URL + "/new-product/";
+  var URL_LIST_PAGE = BASE_URL + "/list-page/";
+  var URL_ADD_GROUPS_FORM = BASE_URL + "/add-groups-form/";
+  var URL_ADD_LOCATIONS_FORM = BASE_URL + "/add-locations-form/";
+  var URL_ADD_CATEGORIES_FORM = BASE_URL + "/add-categories-form/";
+  var URL_ADD_SUPPLIERS_FORM = BASE_URL + "/add-suppliers-form/";
+  var URL_ADD_UNITS_MEASURE_FORM = BASE_URL + "/add-units-measure-form/";
+  var URL_GET_ALL_GROUPS = "//" + BASE_URL + "/api/get-all-groups/";
+  var URL_GET_ALL_CATEGORIES = "//" + BASE_URL + "/api/get-all-categories/";
+  var URL_GET_ALL_LOCATIONS = "//" + BASE_URL + "/api/get-all-locations/";
+  var URL_GET_ALL_SUPPLIERS = "//" + BASE_URL + "/api/get-all-suppliers/";
+  var URL_GET_ALL_UM = "//" + BASE_URL + "/api/get-all-units-measure/";
+  var URL_UPDATE_INVENTORY = "//" + BASE_URL + "/api/update-inventory/";
+  var URL_APPROVE_INVENTORY = "//" + BASE_URL + "/api/post-approve-product/";
+  var URL_CREATE_SDS_RECORD = "//" + BASE_URL + "/api/create-sds-record/";
+  var URL_UPDATE_SDS_RECORD = "//" + BASE_URL + "/api/update-sds-record/";
+  var URL_UPDATE_STOCK_TRANSACTION =
+    "//" + BASE_URL + "/api/update-inventory-stock-transaction/";
+  var URL_BASE_DELETE_INVENTORY = "//" + BASE_URL + "/api/delete-inventory/";
+  var URL_GET_ALL_INVENTORY_SORTED_BY_LOCATIONS =
+    "//" + BASE_URL + "/api/get-products-sorted-by-location/";
+  var token = window.localStorage.getItem("token");
+  let selected_sort = "asc";
+  let selected_product_type = null;
+  let selected_group_id = null;
+  let focused_field_value = null;
+  let focused_field_target = null;
+  let selected_product_id = null;
+  let selected_sds_record_id = null;
+  let units_measure_values = null;
+  // console.log(token)
+
+  if (!token) {
+    // redirect to login page
+    // console.log("token" + token);
+    window.location.href = "//" + URL_LOGIN;
+  }
+
+  var token_string = "token " + token;
+
+  //Humburgermenu
+  let menu = document.querySelector(".menu");
+  let openBtn = document.querySelector(".open-btn");
+  let closeBtn = document.querySelector(".close-btn");
+
+  let logout_btn = document.querySelector("#logout-btn");
+  logout_btn.addEventListener("click", () => {
+    window.localStorage.removeItem("token");
+    window.location.href = "//" + URL_LOGIN;
+  });
+
+  function showToast(message, type) {
+    // alert("toasting");
+    var color = "#23272b";
+    if (type === "warning") {
+      color = "#c82333";
+    } else if (type === "error") {
+      color = "#e0a800";
+    } else if (type === "success") {
+      color = "#218838";
+    }
+
+    var x = document.getElementById("snackbar");
+    x.innerHTML = message;
+    x.className = "show";
+    x.style.backgroundColor = color;
+    setTimeout(function () {
+      x.className = x.className.replace("show", "");
+    }, 3000);
+  }
+  // showToast("No Product is selected", type="warning");
+
+  // This is the code for side menu
+  // closeBtn.addEventListener("click", () => {
+  //   menu.classList.remove("active-menu");
+  // });
+  // openBtn.addEventListener("click", () => {
+  //   menu.classList.add("active-menu");
+  // });
+
+  $.ajax({
+    type: "GET",
+    url: URL_GET_ALL_UM,
+    beforeSend: function (xhr) {
+      xhr.setRequestHeader("Authorization", token_string);
+    },
+    success: function (json_data) {
+      // alert(json_data);
+      if (json_data["success"] === true) {
+        units_measure_values = json_data["data"]["list"];
+        console.log(units_measure_values);
+      }
+    },
+    error: function (json_data) {
+      // alert("ERROR");
+      login_user_details = null;
+      console.log("ERROR GETTING UNITS MEASURES");
+    },
+  });
+
+  $.ajax({
+    type: "GET",
+    url: GET_LOGIN_USER_DETAILS,
+    beforeSend: function (xhr) {
+      xhr.setRequestHeader("Authorization", token_string);
+    },
+    success: function (json_data) {
+      // alert(json_data);
+      if (json_data["success"] === true) {
+        login_user_details = json_data["data"];
+        console.log(login_user_details);
+      }
+    },
+    error: function (json_data) {
+      // alert("ERROR");
+      login_user_details = null;
+      console.log("ERROR GETTING LOGIN USER DETAILS");
+    },
+  });
+
+  // FILL THE CATEGORIES OPTIONS LIST
+  // $.ajax({
+  //   type: "GET",
+  //   url: URL_GET_ALL_CATEGORIES,
+  //   beforeSend: function (xhr) {
+  //     xhr.setRequestHeader("Authorization", token_string);
+  //   },
+  //   success: function (json_data) {
+  //     // alert(json_data);
+  //     if (json_data["success"] === true) {
+  //       $("#categories-options").html("");
+  //       $("#categories-options").append(
+  //         $("<option>").val(0).text("Select Category..")
+  //       );
+  //       for (let i = 0; i < json_data["data"]["count"]; i++) {
+  //         $("#categories-options").append(
+  //           $("<option>")
+  //             .val(json_data["data"]["list"][i]["id"])
+  //             .text(json_data["data"]["list"][i]["name"])
+  //         );
+  //       }
+  //     }
+  //   },
+  //   error: function (json_data) {
+  //     // alert("ERROR");
+  //     console.log("ERROR");
+  //   },
+  // });
+
+  function fillCategoriesOptionsSelectMenu() {
+    // FILL THE CATEGORIES OPTIONS LIST
+    // alert(" CALLING fillCategoriesOptionsSelectMenu");
+    $.ajax({
+      type: "GET",
+      async: "false",
+      url: URL_GET_ALL_CATEGORIES,
+      beforeSend: function (xhr) {
+        xhr.setRequestHeader("Authorization", token_string);
+      },
+      success: function (json_data) {
+        // alert(json_data);
+        if (json_data["success"] === true) {
+          $("#categories-options").html("");
+          $("#categories-options").append($("<option>").val(0).text("All"));
+          $("#categories-options").append("<optgroup label='Categories'>");
+          for (let i = 0; i < json_data["data"]["count"]; i++) {
+            $("#categories-options").append(
+              $("<option>")
+                .val(json_data["data"]["list"][i]["id"])
+                .text(json_data["data"]["list"][i]["name"])
+                .attr("data-type", "category")
+            );
+          }
+        }
+      },
+      error: function (json_data) {
+        // alert("ERROR");
+        console.log("ERROR GETTING CATEGORIES");
+      },
+    });
+
+    // FILL THE LOCATIONS OPTIONS LIST
+    $.ajax({
+      type: "GET",
+      async: "false",
+      url: URL_GET_ALL_LOCATIONS,
+      beforeSend: function (xhr) {
+        xhr.setRequestHeader("Authorization", token_string);
+      },
+      success: function (json_data) {
+        // alert(json_data);
+        if (json_data["success"] === true) {
+          $("#categories-options").append("<optgroup label='Locations'>");
+          for (let i = 0; i < json_data["data"]["count"]; i++) {
+            $("#categories-options").append(
+              $("<option>")
+                .val(json_data["data"]["list"][i]["id"])
+                .text(json_data["data"]["list"][i]["name"])
+                .attr("data-type", "location")
+            );
+          }
+        }
+      },
+      error: function (json_data) {
+        // alert("ERROR");
+        console.log("ERROR GETTING ALL LOCATIONS");
+      },
+    });
+  }
+
+  fillCategoriesOptionsSelectMenu();
+
+  function fillCategoriesLocationsGroupsUMSuppliers() {
+    // FILL THE CATEGORIES OPTIONS LIST
+    $.ajax({
+      type: "GET",
+      url: URL_GET_ALL_CATEGORIES,
+      beforeSend: function (xhr) {
+        xhr.setRequestHeader("Authorization", token_string);
+      },
+      success: function (json_data) {
+        // alert(json_data);
+        if (json_data["success"] === true) {
+          $("#product-category-options").html("");
+          // $("#product-category-options").append(
+          //   $("<option>").val(0).text("Select Category..")
+          // );
+          for (let i = 0; i < json_data["data"]["count"]; i++) {
+            $("#product-category-options").append(
+              $("<option>")
+                .val(json_data["data"]["list"][i]["id"])
+                .text(json_data["data"]["list"][i]["name"])
+            );
+          }
+        }
+      },
+      error: function (json_data) {
+        // alert("ERROR");
+        console.log("ERROR PRODUCT CATEGORIES OPTIONS");
+      },
+    });
+
+    // FILL THE LOCATIONS OPTIONS LIST
+    $.ajax({
+      type: "GET",
+      url: URL_GET_ALL_LOCATIONS,
+      beforeSend: function (xhr) {
+        xhr.setRequestHeader("Authorization", token_string);
+      },
+      success: function (json_data) {
+        // alert(json_data);
+        if (json_data["success"] === true) {
+          $("#product-location-options").html("");
+          // $("#product-location-options").append(
+          //   $("<option>").val(0).text("Select Location..")
+          // );
+          for (let i = 0; i < json_data["data"]["count"]; i++) {
+            $("#product-location-options").append(
+              $("<option>")
+                .val(json_data["data"]["list"][i]["id"])
+                .text(json_data["data"]["list"][i]["name"])
+            );
+          }
+        }
+      },
+      error: function (json_data) {
+        // alert("ERROR");
+        console.log("ERROR PRODUCT LOCATIONS OPTIONS");
+      },
+    });
+
+    // FILL THE GROUPS OPTIONS LIST
+    $.ajax({
+      type: "GET",
+      url: URL_GET_ALL_GROUPS,
+      beforeSend: function (xhr) {
+        xhr.setRequestHeader("Authorization", token_string);
+      },
+      success: function (json_data) {
+        // alert(json_data);
+        if (json_data["success"] === true) {
+          $("#product-group-options").html("");
+          // $("#product-group-options").append(
+          //   $("<option>").val(0).text("Select Group..")
+          // );
+          for (let i = 0; i < json_data["data"]["count"]; i++) {
+            $("#product-group-options").append(
+              $("<option>")
+                .val(json_data["data"]["list"][i]["id"])
+                .text(json_data["data"]["list"][i]["name"])
+            );
+          }
+        }
+      },
+      error: function (json_data) {
+        // alert("ERROR");
+        console.log("ERROR PRODUCT GROUPS OPTIONS");
+      },
+    });
+
+    // FILL THE SUPPLIER OPTIONS LIST
+    $.ajax({
+      type: "GET",
+      url: URL_GET_ALL_SUPPLIERS,
+      beforeSend: function (xhr) {
+        xhr.setRequestHeader("Authorization", token_string);
+      },
+      success: function (json_data) {
+        // alert(json_data);
+        if (json_data["success"] === true) {
+          $("#product-supplier-options").html("");
+          // $("#product-supplier-options").append(
+          //   $("<option>").val(0).text("Select Supplier..")
+          // );
+          for (let i = 0; i < json_data["data"]["count"]; i++) {
+            $("#product-supplier-options").append(
+              $("<option>")
+                .val(json_data["data"]["list"][i]["id"])
+                .text(json_data["data"]["list"][i]["name"])
+            );
+          }
+        }
+      },
+      error: function (json_data) {
+        // alert("ERROR");
+        console.log("ERROR PRODUCT SUPPLIER OPTIONS");
+      },
+    });
+
+    // FILL THE UNITS MEASURE OPTIONS LIST
+    $.ajax({
+      type: "GET",
+      url: URL_GET_ALL_UM,
+      beforeSend: function (xhr) {
+        xhr.setRequestHeader("Authorization", token_string);
+      },
+      success: function (json_data) {
+        // alert(json_data);
+        if (json_data["success"] === true) {
+          $("#product-um-options").html("");
+          // $("#product-um-options").append(
+          //   $("<option>").val(0).text("Select UM..")
+          // );
+          for (let i = 0; i < json_data["data"]["count"]; i++) {
+            $("#product-um-options").append(
+              $("<option>")
+                .val(json_data["data"]["list"][i]["id"])
+                .text(json_data["data"]["list"][i]["name"])
+            );
+          }
+        }
+      },
+      error: function (json_data) {
+        // alert("ERROR");
+        console.log("ERROR PRODUCT SUPPLIER OPTIONS");
+      },
+    });
+  }
+
+  fillCategoriesLocationsGroupsUMSuppliers();
+
+  // Change the name of categories-options, when a new option is selected
+  // Call the get products api on the selected option and fill the products
+  $("#categories-options").change(function () {
+    var value = $(this).val();
+    var type = $(this).children("option:selected").attr("data-type");
+    // alert(type + ": " + value);
+    // alert("Categories olptions changed");
+    current_selected_product = null;
+    resetFormFields();
+    get_products_and_fill_list((search_by = type), value, "asc");
+  });
+
+  $("#categories-options").trigger("change");
+
+  $("#product-type").change(function () {
+    var value = $(this).val();
+    // alert(value);
+    if (value === "approved") {
+      current_selected_product = null;
+      resetFormFields();
+      // alert("Approved");
+      selected_product_type = "approved";
+      get_products_and_fill_list(
+        (search_by = last_used_filter_category),
+        (search = last_used_filter_category_value),
+        (sort = selected_sort)
+      );
+
+      document.querySelector("#inventory-transactions-div").style.display =
+        "block";
+      document.querySelector("#approve-product-btn-div").style.display = "none";
+    } else {
+      // alert("UnApproved");
+      selected_product_type = "unapproved";
+      get_products_and_fill_list(
+        (search_by = last_used_filter_category),
+        (search = last_used_filter_category_value),
+        (sort = selected_sort)
+      );
+
+      document.querySelector("#inventory-transactions-div").style.display =
+        "none";
+      document.querySelector("#approve-product-btn-div").style.display =
+        "block";
+      resetFormFields();
+    }
+  });
+
+  $("#product-type").trigger("change");
+
+  // Function to fill the products list
+  function get_products_and_fill_list(
+    search_by,
+    search,
+    sort = "asc",
+    group_val = null
+  ) {
+    last_used_filter_category = search_by;
+    last_used_filter_category_value = search;
+
+    let URL_GET_PRODUCTS =
+      "//" + BASE_URL + "/api/get-products-with-filters/?sort=" + sort;
+
+    if (selected_group_id !== null) {
+      URL_GET_PRODUCTS = URL_GET_PRODUCTS + "&group=" + selected_group_id;
+    }
+
+    if (
+      search === null ||
+      search === 0 ||
+      search_by === undefined ||
+      search_by === null
+    ) {
+      URL_GET_PRODUCTS = URL_GET_PRODUCTS;
+    } else {
+      URL_GET_PRODUCTS = URL_GET_PRODUCTS + "&" + search_by + "=" + search;
+    }
+
+    if (selected_product_type !== null) {
+      if (selected_product_type === "approved") {
+        URL_GET_PRODUCTS = URL_GET_PRODUCTS + "&isapproved=true";
+      } else {
+        URL_GET_PRODUCTS = URL_GET_PRODUCTS + "&isapproved=false";
+      }
+    }
+
+    // alert(URL_GET_PRODUCTS);
+
+    $.ajax({
+      type: "GET",
+      url: URL_GET_PRODUCTS,
+      beforeSend: function (xhr) {
+        xhr.setRequestHeader("Authorization", token_string);
+      },
+      success: function (json_data) {
+        // alert(json_data);
+        if (json_data["success"] === true) {
+          // console.log(json_data["data"]);
+          $(".buttons-container").html("");
+          for (let i = 0; i < json_data["data"]["count"]; i++) {
+            var product_button = $(document.createElement("button")).prop({
+              type: "button",
+              innerHTML: json_data["data"]["list"][i]["ItemName"],
+              id: json_data["data"]["list"][i]["id"],
+              class: "product-button",
+            });
+            $(product_button).css({
+              "text-align": "left",
+              padding: "6px",
+              overflow: "hidden",
+              "text-overflow": "ellipsis",
+              "white-space": "nowrap",
+            });
+            $(".buttons-container").append(product_button);
+            $("#total-count").html(json_data["data"]["count"]);
+          }
+          add_event_listener_to_buttons();
+        }
+      },
+      error: function (json_data) {
+        console.log("ERROR");
+      },
+    });
+  }
+
+  // Adding event listener in buttons and calling the fill product details on button click
+  function add_event_listener_to_buttons() {
+    // alert("Button  listener is being added");
+    let buttons = document.querySelectorAll(".product-button");
+    buttons.forEach((item, index) => {
+      let selectedIndex;
+      item.addEventListener("click", () => {
+        item.classList.add("active-button");
+        selectedIndex = index;
+        buttons.forEach((innerItem, i) => {
+          if (selectedIndex !== i) {
+            innerItem.classList.remove("active-button");
+          }
+        });
+        // alert(item.id);
+        getProductDetailsAndFillProductFormData(item.id);
+        getSdsDetailsAndFillSdsFormData(item.id);
+        getAllStockTransactionsAndAppend(item.id);
+      });
+    });
+  }
+
+  // filling the product details on the form after the selecting a product from product buttons list
+  function getProductDetailsAndFillProductFormData(id) {
+    let URL_GET_PRODUCT_DETAILS = "/api/get-product/" + id + "/";
+    // alert(URL_GET_PRODUCT_DETAILS);
+    // console.log(URL_GET_PRODUCT_DETAILS);
+
+    $.ajax({
+      type: "GET",
+      url: URL_GET_PRODUCT_DETAILS,
+      beforeSend: function (xhr) {
+        xhr.setRequestHeader("Authorization", token_string);
+      },
+      success: function (json_data) {
+        // alert(json_data);
+        console.log(json_data);
+        // resetFormFields();
+        // console.log("Idhar dekh abbe");
+        current_selected_product = json_data["data"]["list"];
+        selected_product_id = json_data["data"]["list"]["id"];
+        if (json_data["data"]["list"]["SDSRecords"]["count"] !== 0) {
+          selected_sds_record_id =
+            json_data["data"]["list"]["SDSRecords"]["list"][0]["id"];
+        }
+
+        addEventListenerToFields();
+        addEventListenerToSDSFields();
+        // addEventListenerToSTFields();
+        // console.log(current_selected_product);
+        if (json_data["success"] === true) {
+          // console.log("product details");
+          // console.log(json_data["data"]);
+
+          // fillCategoriesLocationsGroupsUMSuppliers();
+          $("#record-id").html(json_data["data"]["list"]["id"]);
+          // filling the product form data
+          // $("#").val(json_data['data']['list']['']);
+          // console.log(json_data["data"]["list"]["DateEntered"]);
+          // console.log(json_data["data"]["list"]["ItemName"]);
+          if (json_data["data"]["list"]["DateEntered"] !== null) {
+            $("#product-date-entered").val(
+              json_data["data"]["list"]["DateEntered"].slice(0, 10)
+            );
+          } else {
+            $("#product-date-entered").val(
+              json_data["data"]["list"]["DateEntered"]
+            );
+          }
+
+          $("#product-name-heading").html(
+            json_data["data"]["list"]["ItemName"]
+          );
+          $("#product-name").val(json_data["data"]["list"]["ItemName"]);
+          $("#product-known-as").val(json_data["data"]["list"]["ItemKnownAs"]);
+          $("#product-description").val(
+            json_data["data"]["list"]["ItemDescription"]
+          );
+          if (json_data["data"]["list"]["DateExpired"] !== null) {
+            $("#product-date-expired").val(
+              json_data["data"]["list"]["DateExpired"].slice(0, 10)
+            );
+          } else {
+            $("#product-date-expired").val(
+              json_data["data"]["list"]["DateExpired"]
+            );
+          }
+
+          $("#product-model-year").val(json_data["data"]["list"]["ModelYear"]);
+
+          $("#product-part-number").val(
+            json_data["data"]["list"]["PartNumber"]
+          );
+
+          $("#product-barcode-label").val(json_data["data"]["list"]["BarCode"]);
+          const stock_availability_array =
+            json_data["data"]["list"]["stock_availability_value"].split("|");
+          $("#product-stock-status").val(stock_availability_array[0]);
+          $("#product-stock-status").css("color", stock_availability_array[1]);
+
+          // $("#product-status").html("");
+          // $("#product-status").append(
+          //   "<option>" + json_data["data"]["list"]["ItemStatus"] + "</option>"
+          // );
+
+          if (json_data["data"]["list"]["ItemStatus"] === null) {
+            document.querySelector("#product-status-options").value = 0;
+          } else {
+            console.log("STATUS : " + json_data["data"]["list"]["ItemStatus"]);
+            document.querySelector("#product-status-options").value =
+              json_data["data"]["list"]["ItemStatus"];
+          }
+
+          var group_select = document.querySelector("#product-group-options");
+          var group_list = json_data["data"]["list"]["Group"];
+
+          for (let i = 0; i < group_list.length; i++) {
+            for (let j = 0; j < group_select.options.length; j++) {
+              if (group_select.options[j].value == group_list[i]["id"]) {
+                // console.log("here");
+                group_select.options[j].selected = true;
+              }
+            }
+          }
+
+          // document.querySelector("#product-group-options").value = json_data["data"]["list"]["Group"]["id"];
+
+          var category_select = document.querySelector(
+            "#product-category-options"
+          );
+          var category_list = json_data["data"]["list"]["Category"];
+
+          for (let i = 0; i < category_list.length; i++) {
+            for (let j = 0; j < category_select.options.length; j++) {
+              if (category_select.options[j].value == category_list[i]["id"]) {
+                // console.log("here");
+                category_select.options[j].selected = true;
+              }
+            }
+          }
+
+          // document.querySelector("#product-category-options").value = json_data["data"]["list"]["Category"]["id"];
+
+          var location_select = document.querySelector(
+            "#product-location-options"
+          );
+          var location_list = json_data["data"]["list"]["Location"];
+
+          for (let i = 0; i < location_list.length; i++) {
+            for (let j = 0; j < location_select.options.length; j++) {
+              if (location_select.options[j].value == location_list[i]["id"]) {
+                // console.log("here");
+                location_select.options[j].selected = true;
+              }
+            }
+          }
+
+          // document.querySelector("#product-location-options").value = json_data["data"]["list"]["Location"]["id"];
+
+          var supplier_select = document.querySelector(
+            "#product-supplier-options"
+          );
+          var supplier_list = json_data["data"]["list"]["Supplier"];
+
+          for (let i = 0; i < supplier_list.length; i++) {
+            for (let j = 0; j < supplier_select.options.length; j++) {
+              if (supplier_select.options[j].value == supplier_list[i]["id"]) {
+                // console.log("here");
+                supplier_select.options[j].selected = true;
+              }
+            }
+          }
+
+          // document.querySelector("#product-supplier-options").value = json_data["data"]["list"]["Supplier"];
+
+          $("#product-units-on-hand").val(
+            json_data["data"]["list"]["units_on_hand_value"]
+          );
+
+          // TODO: Fill the Unit Measure
+          if (json_data["data"]["list"]["UnitsMeasure"] === null) {
+            document.querySelector("#product-um-options").value = 0;
+          } else {
+            document.querySelector("#product-um-options").value =
+              json_data["data"]["list"]["UnitsMeasure"]["id"];
+          }
+
+          // $("#product-reorder-level").val(
+          //   json_data["data"]["list"]["ReorderLevel"]
+          // );
+          document.querySelector("#product-reorder-level").value =
+            json_data["data"]["list"]["ReorderLevel"];
+          $("#product-min-order").val(
+            json_data["data"]["list"]["MinimumOrder"]
+          );
+
+          if (json_data["data"]["list"]["DateLastOrdered"] !== null) {
+            $("#product-date-last-ordered").val(
+              json_data["data"]["list"]["DateLastOrdered"].slice(0, 10)
+            );
+          } else {
+            $("#product-date-last-ordered").val(
+              json_data["data"]["list"]["DateLastOrdered"]
+            );
+          }
+
+          $("#product-unit-price").val(
+            json_data["data"]["list"]["StockUnitPrice"]
+          );
+          if (json_data["data"]["list"]["DateLastUsed"] !== null) {
+            $("#product-date-last-used").val(
+              json_data["data"]["list"]["DateLastUsed"].slice(0, 10)
+            );
+          } else {
+            $("#product-date-last-used").val(
+              json_data["data"]["list"]["DateLastUsed"]
+            );
+          }
+
+          $("#product-taxable").val(json_data["data"]["list"]["Taxable"]);
+          if (json_data["data"]["list"]["DateModified"] !== null) {
+            $("#product-last-modified").val(
+              json_data["data"]["list"]["DateModified"].slice(0, 10)
+            );
+          } else {
+            $("#product-last-modified").val(
+              json_data["data"]["list"]["DateModified"]
+            );
+          }
+
+          $("#product-tax").val(json_data["data"]["list"]["tax_amt_value"]);
+          $("#product-delivery-charge").val(
+            json_data["data"]["list"]["DeliveryCharge"]
+          );
+          $("#product-stock-ext-value").val(
+            json_data["data"]["list"]["stock_ext_value"]
+          );
+          $("#product-total-value").val(
+            json_data["data"]["list"]["tax_amt_value"]
+          );
+
+          if (json_data["data"]["list"]["RequestedBy"] !== null) {
+            $("#sds-requested-by").val(
+              json_data["data"]["list"]["RequestedBy"]["email"]
+            );
+          }
+
+          if (json_data["data"]["list"]["RequestedByDate"] !== null) {
+            $("#sds-requested-by-date").val(
+              json_data["data"]["list"]["RequestedByDate"].slice(0, 10)
+            );
+          } else {
+            $("#sds-requested-by-date").val(
+              json_data["data"]["list"]["RequestedByDate"]
+            );
+          }
+
+          // $("#sds-approved-by").val(
+          //   json_data["data"]["list"]["RequestApprovedBy"]["email"]
+          // );
+          if (json_data["data"]["list"]["RequestApprovedBy"] !== null) {
+            $("#sds-approved-by").val(
+              json_data["data"]["list"]["RequestApprovedBy"]["email"]
+            );
+          }
+
+          if (json_data["data"]["list"]["RequestApprovedDate"] !== null) {
+            $("#sds-approved-by-date").val(
+              json_data["data"]["list"]["RequestApprovedDate"].slice(0, 10)
+            );
+          } else {
+            $("#sds-approved-by-date").val(
+              json_data["data"]["list"]["RequestApprovedDate"]
+            );
+          }
+        }
+
+        if (json_data["data"]["list"]["SDSOnFile"] === true) {
+          document.getElementById("sds-on-file-checkbox").checked = true;
+        } else {
+          document.getElementById("sds-on-file-checkbox").checked = false;
+        }
+
+        const checkbox = document.getElementById("sds-on-file-checkbox");
+        checkbox.addEventListener("change", (e) => {
+          if (e.target.checked) {
+            updateField(
+              (name_field = "SDSOnFile"),
+              (value_field = true),
+              (id = json_data["data"]["list"]["id"])
+            );
+          } else {
+            updateField(
+              (name_field = "SDSOnFile"),
+              (value_field = false),
+              (id = json_data["data"]["list"]["id"])
+            );
+          }
+        });
+
+        $("#product-image").attr(
+          "src",
+          "//" + BASE_URL + json_data["data"]["list"]["Image"]
+        );
+      },
+      error: function (json_data) {
+        console.log(json_data);
+        console.log("ERROR :  Get Product Details");
+      },
+    });
+  }
+
+  function getAllStockTransactionsAndAppend(id) {
+    // it is for add transactions
+    st_input_active = false;
+
+    let URL_GET_STOCK_TRANSACTIONS =
+      "/api/get-inventory-stock-transaction/" + id + "/";
+    // alert(URL_GET_PRODUCT_DETAILS);
+    // console.log(URL_GET_PRODUCT_DETAILS);
+
+    $.ajax({
+      type: "GET",
+      url: URL_GET_STOCK_TRANSACTIONS,
+      beforeSend: function (xhr) {
+        xhr.setRequestHeader("Authorization", token_string);
+      },
+      success: function (json_data) {
+        // alert(json_data);
+        if (json_data["success"] === true) {
+          console.log("Stock Transactions Data");
+          console.log(json_data["data"]);
+          var st_table_body = document.querySelector("#st-table-body");
+          st_table_body.innerHTML = "";
+
+          for (let i = 0; i < json_data["data"]["count"]; i++) {
+            var table_row = document.createElement("tr");
+            table_row.setAttribute("id", json_data["data"]["list"][i]["id"]);
+            table_row.setAttribute("class", "st-table-row");
+            table_row.setAttribute(
+              "data-productid",
+              json_data["data"]["list"][i]["IDRecord"]
+            );
+            table_row.setAttribute(
+              "data-id",
+              json_data["data"]["list"][i]["id"]
+            );
+
+            // td - date
+            var td_date = $(document.createElement("td"));
+            var td_date_input = $(document.createElement("input"));
+            $(td_date_input).css("width", "110px");
+            $(td_date_input).attr("type", "date");
+            $(td_date_input).attr("name", "DateTransaction");
+            $(td_date_input).attr(
+              "data-stid",
+              json_data["data"]["list"][i]["id"]
+            );
+            $(td_date_input).attr(
+              "class",
+              "stock-transaction-change-listener-class-date"
+            );
+
+            if (json_data["data"]["list"][i]["DateTransaction"] !== null) {
+              $(td_date_input).val(
+                json_data["data"]["list"][i]["DateTransaction"].slice(0, 10)
+              );
+            } else {
+              $(td_date_input).val(
+                json_data["data"]["list"][i]["DateTransaction"]
+              );
+            }
+            $(td_date).append(td_date_input);
+            $(table_row).append(td_date);
+            st_table_body.append(table_row);
+
+            // td - calander icon in a link
+            var td_calander = $(document.createElement("td"));
+
+            var td_calender_a = $(document.createElement("a")).prop({
+              class: "dropdown-toggle waves-effect waves-light font-20",
+            });
+            $(td_calender_a).attr("data-toggle", "dropdown");
+
+            var td_calender_i = $(document.createElement("i")).prop({
+              class: "fa-regular fa-calendar-days",
+            });
+
+            $(td_calender_a.append(td_calender_i));
+            $(td_calander).append(td_calender_a);
+            $(table_row).append(td_calander);
+
+            // td- Lot Number
+            var td_lot_number = $(document.createElement("td"));
+            var td_lot_number_input = $(document.createElement("input"));
+            $(td_lot_number_input).css("width", "40px");
+            $(td_lot_number_input).attr("name", "LotNumber");
+            $(td_lot_number_input).attr("placeholder", "Lot Num.");
+            $(td_lot_number_input).attr(
+              "data-stid",
+              json_data["data"]["list"][i]["id"]
+            );
+            $(td_lot_number_input).attr("type", "text");
+            $(td_lot_number_input).attr(
+              "class",
+              "stock-transaction-change-listener-class"
+            );
+            $(td_lot_number_input).val(
+              json_data["data"]["list"][i]["LotNumber"]
+            );
+            $(td_lot_number).append(td_lot_number_input);
+            $(table_row).append(td_lot_number);
+
+            // td- Description
+            var td_description = $(document.createElement("td"));
+            var td_description_input = $(document.createElement("input"));
+            $(td_description_input).css("width", "90px");
+            $(td_description_input).attr("name", "Description");
+            $(td_description_input).attr("placeholder", "Description");
+            $(td_description_input).attr(
+              "data-stid",
+              json_data["data"]["list"][i]["id"]
+            );
+            $(td_description_input).attr("type", "text");
+            $(td_description_input).attr(
+              "class",
+              "stock-transaction-change-listener-class"
+            );
+            $(td_description_input).val(
+              json_data["data"]["list"][i]["Description"]
+            );
+            $(td_description).append(td_description_input);
+            $(table_row).append(td_description);
+
+            // td - Units in a link
+            var td_units = $(document.createElement("td")).prop({
+              class: "text-nowrap",
+            });
+
+            var td_units_a = $(document.createElement("a"));
+            $(td_units_a).attr("data-toggle", "tooltip");
+            $(td_units_a).attr("data-original-title", "Edit");
+            $(td_units).append(td_units_a);
+
+            // $(td_units).append(json_data["data"]["list"][i]["Units"]);
+            var td_units_input = $(document.createElement("input"));
+            $(td_units_input).attr("name", "Units");
+            $(td_units_input).attr("placeholder", "Units");
+            $(td_units_input).attr(
+              "data-stid",
+              json_data["data"]["list"][i]["id"]
+            );
+            $(td_units_input).css("width", "40px");
+            $(td_units_input).attr("type", "text");
+            $(td_units_input).attr(
+              "class",
+              "stock-transaction-change-listener-class"
+            );
+            $(td_units_input).val(json_data["data"]["list"][i]["Units"]);
+            $(td_units).append(td_units_input);
+            $(table_row).append(td_units);
+
+            // e - units_measure in a link
+            var td_units_measure = $(document.createElement("td")).prop({
+              class: "text-nowrap",
+            });
+
+            var td_units_measure_a = $(document.createElement("a"));
+            $(td_units_measure_a).attr("data-toggle", "tooltip");
+            $(td_units_measure_a).attr("data-original-title", "Edit");
+            $(td_units_measure).append(td_units_measure_a);
+
+            var td_units_measure_select = $(document.createElement("select"));
+            $(td_units_measure_select).css("width", "40px");
+            $(td_units_measure_select).attr("name", "UnitsMeasure");
+            $(td_units_measure_select).attr(
+              "data-stid",
+              json_data["data"]["list"][i]["id"]
+            );
+            $(td_units_measure_select).attr("name", "UnitsMeasure");
+            $(td_units_measure_select).attr(
+              "class",
+              "stock-transaction-change-listener-class stock-transactions-select"
+            );
+            for (let i = 0; i < units_measure_values.length; i++) {
+              var option = document.createElement("option");
+              option.setAttribute("value", units_measure_values[i]["id"]);
+              option.innerHTML = units_measure_values[i]["name"];
+              $(td_units_measure_select).append(option);
+            }
+            $(td_units_measure).append(td_units_measure_select);
+            $(table_row).append(td_units_measure);
+            // FIXME: Units Measure
+            // $(td_units_measure_select).val(json_data["data"]["list"]["UnitsMeasure"]["id"]);
+            // td_units_measure_select.value = json_data["data"]["list"]["UnitsMeasure"]["id"];
+
+            // $(td_units_measure).append(
+            //   json_data["data"]["list"][i]["UnitsMeasure"]
+            // );
+
+            // td - buttons in a link
+            var td_buttons = $(document.createElement("td")).prop({
+              class: "text-nowrap",
+            });
+
+            var td_buttons_a = $(document.createElement("a"));
+            $(td_units_a).attr("data-toggle", "tooltip");
+            $(td_units_a).attr("data-original-title", "Close");
+
+            var td_buttons_div = $(document.createElement("div")).prop({
+              class: "btn-group",
+            });
+
+            var td_button_in = $(document.createElement("button")).prop({
+              class: "btn btn-sm btn-outline waves-effect",
+              type: "button",
+            });
+            $(td_button_in).html("In");
+
+            var td_button_out = $(document.createElement("button")).prop({
+              class: "btn btn-sm btn-outline waves-effect",
+              type: "button",
+            });
+            $(td_button_out).html("Out");
+
+            if (json_data["data"]["list"][i]["Type"] === "In") {
+              $(td_button_in).css("background-color", "rgb(247, 171, 52)");
+              $(td_button_in).css("color", "white");
+            } else {
+              $(td_button_out).css("background-color", "rgb(247, 171, 52)");
+              $(td_button_out).css("color", "white");
+            }
+
+            $(td_buttons_div).append(td_button_in);
+            $(td_buttons_div).append(td_button_out);
+            $(td_buttons_a).append(td_buttons_div);
+            $(td_buttons).append(td_buttons_a);
+            $(table_row).append(td_buttons);
+
+            // td - delete button in a link
+            var td_del_btn = $(document.createElement("td")).prop({
+              class: "text-nowrap",
+            });
+
+            var td_del_btn_a = $(document.createElement("a")).prop({
+              class:
+                "dropdown-toggle waves-effect waves-light font-20 st-del-button",
+              href: "javascript:void(0);",
+            });
+            $(td_del_btn_a).attr("data-toggle", "dropdown");
+
+            var td_del_btn_i = $(document.createElement("i")).prop({
+              class: "fa-solid fa-trash-can",
+            });
+
+            $(td_del_btn_a).append(td_del_btn_i);
+            $(td_del_btn).append(td_del_btn_a);
+            $(table_row).append(td_del_btn);
+          }
+
+          add_event_listener_to_delete_buttons_in_st();
+          add_event_listeners_update_to_st_fields();
+        }
+      },
+      error: function (json_data) {
+        console.log("ERROR: Getting Stock Transactions data");
+      },
+    });
+  }
+
+  // Adding event listener to delete buttons in stock transaction table
+  function add_event_listener_to_delete_buttons_in_st() {
+    // alert("Button  listener is being added");
+    let buttons = document.querySelectorAll(".st-del-button");
+    buttons.forEach((item, index) => {
+      item.addEventListener("click", () => {
+        var parent_tr = item.closest("tr");
+        console.log(parent_tr);
+        product_id = $(parent_tr).attr("data-productid");
+        stock_transaction_id = $(parent_tr).attr("data-id");
+        // deleteStockTransactionAndRefreshTable(stock_transaction_id, product_id);
+        swal({
+          title: "Are you sure?",
+          text: "Delete the entry",
+          icon: "warning",
+          buttons: true,
+          dangerMode: true,
+        }).then((willDelete) => {
+          if (willDelete) {
+            deleteStockTransactionAndRefreshTable(
+              stock_transaction_id,
+              product_id
+            );
+            showToast("Entry successfully deleted", (type = "success"));
+          } else {
+          }
+        });
+      });
+    });
+  }
+
+  function deleteStockTransactionAndRefreshTable(
+    stock_transaction_id,
+    product_id
+  ) {
+    console.log("Product_id : " + product_id);
+    console.log("ST_id : " + stock_transaction_id);
+
+    let URL_DEL_ST_ENTRY =
+      "/api/delete-inventory-stock-transaction/" + stock_transaction_id + "/";
+    console.log("URL Del St Entry : " + URL_DEL_ST_ENTRY);
+
+    $.ajax({
+      type: "POST",
+      url: URL_DEL_ST_ENTRY,
+      beforeSend: function (xhr) {
+        xhr.setRequestHeader("Authorization", token_string);
+      },
+      success: function (json_data) {
+        if (json_data["success"] === true) {
+          console.log(json_data["data"]);
+          getAllStockTransactionsAndAppend(product_id);
+        }
+      },
+      error: function (json_data) {
+        console.log("ERROR DEL ST Entry");
+      },
+    });
+  }
+
+  // filling the sds record details for the selected product
+  function getSdsDetailsAndFillSdsFormData(product_id) {
+    // alert("Reaching here");
+    let URL_GET_SDS_DETAILS =
+      "/api/inventory-sds-record-for-product/" + product_id + "/";
+    console.log("Url get sds record details : " + URL_GET_SDS_DETAILS);
+
+    $.ajax({
+      type: "GET",
+      url: URL_GET_SDS_DETAILS,
+      beforeSend: function (xhr) {
+        xhr.setRequestHeader("Authorization", token_string);
+      },
+      success: function (json_data) {
+        // alert(json_data);
+        if (json_data["success"] === true) {
+          console.log(json_data["data"]);
+          selected_sds_record_id = json_data["data"]["id"];
+          $("#sds-name").val(json_data["data"]["SDSNameURL"]);
+
+          $("#sds-cas-num").val(json_data["data"]["SDSCasNo"]);
+
+          $("#sds-component").val(json_data["data"]["SDSComponent"]);
+
+          $("#sds-url").val(json_data["data"]["SDSLocationURL"]);
+        }
+      },
+      error: function (json_data) {
+        console.log("ERROR Sds Record");
+      },
+    });
+  }
+
+  // Adding evene listener to Add Transaction Button
+  var add_transaction_btn = document.querySelector("#st-add-transaction-btn");
+  add_transaction_btn.addEventListener("click", () => {
+    // console.log("Add Transaction Button Clicked");
+    if (!current_selected_product) {
+      // show toast to select a product
+      showToast("No product selected", (type = "warning"));
+    } else if (st_input_active === true) {
+      // pass
+    } else {
+      st_input_active = true;
+      st_in_selected = false;
+      st_out_selected = false;
+
+      var st_table_body = document.querySelector("#st-table-body");
+
+      var table_row = document.createElement("tr");
+
+      table_row.setAttribute("id", "add-new-sds-transaction");
+      table_row.setAttribute("class", "st-table-row");
+
+      // td - date
+      var td_date = $(document.createElement("td"));
+      $(td_date).html(
+        '<input type="date" id="st-date-input" name="st-date-input" class="st-inputs" style="width:110px;">'
+      );
+
+      $(table_row).append(td_date);
+
+      // td - calander icon in a link
+      var td_calander = $(document.createElement("td"));
+
+      var td_calender_a = $(document.createElement("a")).prop({
+        class: "dropdown-toggle waves-effect waves-light font-20",
+      });
+      $(td_calender_a).attr("data-toggle", "dropdown");
+
+      var td_calender_i = $(document.createElement("i")).prop({
+        class: "fa-regular fa-calendar-days",
+      });
+
+      $(td_calender_a.append(td_calender_i));
+      $(td_calander).append(td_calender_a);
+      $(table_row).append(td_calander);
+
+      $(st_table_body).prepend(table_row);
+
+      // td- Lot Number
+      var td_lot_number = $(document.createElement("td"));
+      $(td_lot_number).html(
+        '<input type="text" id="st-lot-input" name="st-lot-input" placeholder="Lot" class="st-inputs" style="width:40px">'
+      );
+      $(table_row).append(td_lot_number);
+
+      // td- Description
+      var td_description = $(document.createElement("td"));
+      var td_description_input = $(document.createElement("input"));
+      // new added
+      $(td_description_input).css("width", "90px");
+      $(td_description_input).attr("name", "Description");
+      $(td_description_input).attr("id", "st-description-input");
+      $(td_description_input).attr("type", "text");
+      $(td_description_input).val(current_selected_product["ItemName"]);
+      $(td_description).append(td_description_input);
+      // $(td_description).html(current_selected_product["ItemName"]);
+      $(table_row).append(td_description);
+      console.log(current_selected_product);
+
+      // td - Units in a link
+      var td_units = $(document.createElement("td")).prop({
+        class: "text-nowrap",
+      });
+      var td_units_a = $(document.createElement("a"));
+      $(td_units_a).attr("data-toggle", "tooltip");
+      $(td_units_a).attr("data-original-title", "Edit");
+
+      $(td_units).append(td_units_a);
+      $(td_units).append(
+        '<input type="text" id="st-units-input" name="st-units-input" placeholder="Units" class="st-inputs" style="width:40px;">'
+      );
+      $(table_row).append(td_units);
+
+      // td - units_measure in a link
+      var td_units_measure = $(document.createElement("td")).prop({
+        class: "text-nowrap",
+      });
+
+      var td_units_measure_a = $(document.createElement("a"));
+      $(td_units_measure_a).attr("data-toggle", "tooltip");
+      $(td_units_measure_a).attr("data-original-title", "Edit");
+      $(td_units_measure).append(td_units_measure_a);
+
+      var td_units_measure_select = $(document.createElement("select"));
+      $(td_units_measure_select).css("width", "40px");
+      $(td_units_measure_select).attr("name", "UnitsMeasure");
+      $(td_units_measure_select).attr("id", "st-unit-measure-input");
+      $(td_units_measure_select).attr("name", "UnitsMeasure");
+      $(td_units_measure_select).attr("class", "stock-transactions-select");
+      $(td_units_measure_select).append("<option value='0'>Um..</option>");
+      for (let i = 0; i < units_measure_values.length; i++) {
+        var option = document.createElement("option");
+        option.setAttribute("value", units_measure_values[i]["id"]);
+        option.innerHTML = units_measure_values[i]["name"];
+        $(td_units_measure_select).append(option);
+      }
+      $(td_units_measure).append(td_units_measure_select);
+
+      // $(td_units_measure).append(
+      //   json_data["data"]["list"][i]["UnitsMeasure"]
+      // );
+
+      // $(td_units_measure).append(
+      //   '<input type="text" id="st-unit-measure-input" name="st-unit-measure-input" placeholder="UM" class="st-inputs">'
+      // );
+      $(table_row).append(td_units_measure);
+
+      // td - buttons in a link
+      var td_buttons = $(document.createElement("td")).prop({
+        class: "text-nowrap",
+      });
+
+      var td_buttons_a = $(document.createElement("a"));
+      $(td_units_a).attr("data-toggle", "tooltip");
+      $(td_units_a).attr("data-original-title", "Close");
+
+      var td_buttons_div = $(document.createElement("div")).prop({
+        class: "btn-group",
+      });
+
+      var td_button_in = $(document.createElement("button")).prop({
+        class: "btn btn-sm btn-outline waves-effect",
+        type: "button",
+        id: "add-new-st-in-button",
+      });
+      $(td_button_in).html("In");
+
+      var td_button_out = $(document.createElement("button")).prop({
+        class: "btn btn-sm btn-outline waves-effect",
+        type: "button",
+        id: "add-new-st-out-button",
+      });
+      $(td_button_out).html("Out");
+
+      $(td_buttons_div).append(td_button_in);
+      $(td_buttons_div).append(td_button_out);
+      $(td_buttons_a).append(td_buttons_div);
+      $(td_buttons).append(td_buttons_a);
+      $(table_row).append(td_buttons);
+
+      // td - go button in a link
+      var td_go_btn = $(document.createElement("td")).prop({
+        class: "text-nowrap",
+      });
+
+      var td_go_btn_a = $(document.createElement("a")).prop({
+        class: "dropdown-toggle waves-effect waves-light font-20 st-go-button",
+        href: "javascript:void(0);",
+        id: "add-new-st-go-button",
+      });
+      $(td_go_btn_a).attr("data-toggle", "dropdown");
+
+      var td_go_btn_i = $(document.createElement("i")).prop({
+        class: "fa-solid fa-play",
+      });
+
+      $(td_go_btn_a).append(td_go_btn_i);
+      $(td_go_btn).append(td_go_btn_a);
+      $(table_row).append(td_go_btn);
+
+      // td - cancel button in a link
+      var td_cancel_btn = $(document.createElement("td")).prop({
+        class: "text-nowrap",
+      });
+
+      var td_cancel_btn_a = $(document.createElement("a")).prop({
+        class:
+          "dropdown-toggle waves-effect waves-light font-20 st-cancel-button",
+        href: "javascript:void(0);",
+        id: "add-new-st-cancel-button",
+      });
+      $(td_cancel_btn_a).attr("data-toggle", "dropdown");
+
+      var td_cancel_btn_i = $(document.createElement("i")).prop({
+        class: "fa-solid fa-xmark",
+      });
+
+      $(td_cancel_btn_a).append(td_cancel_btn_i);
+      $(td_cancel_btn).append(td_cancel_btn_a);
+      $(table_row).append(td_cancel_btn);
+
+      st_table_body.prepend(table_row);
+
+      addEventListenerToAddNewStTableRow();
+    }
+  });
+
+  function addEventListenerToAddNewStTableRow() {
+    var in_btn = document.querySelector("#add-new-st-in-button");
+    var out_btn = document.querySelector("#add-new-st-out-button");
+
+    in_btn.addEventListener("click", function () {
+      st_in_selected = true;
+      st_out_selected = false;
+
+      in_btn.classList.add("active-yellow-button");
+      out_btn.classList.remove("active-yellow-button");
+    });
+
+    out_btn.addEventListener("click", function () {
+      st_in_selected = false;
+      st_out_selected = true;
+
+      in_btn.classList.remove("active-yellow-button");
+      out_btn.classList.add("active-yellow-button");
+    });
+
+    var cancel_button = document.querySelector("#add-new-st-cancel-button");
+    cancel_button.addEventListener("click", function () {
+      var st_table_body = document.querySelector("#st-table-body");
+      st_table_body.removeChild(
+        document.querySelector("#add-new-sds-transaction")
+      );
+      st_input_active = false;
+    });
+
+    var go_button = document.querySelector("#add-new-st-go-button");
+    go_button.addEventListener("click", function () {
+      var units = document.querySelector("#st-units-input").value;
+      var product_id = current_selected_product["id"];
+      var unit_measure = document.querySelector("#st-unit-measure-input").value;
+      var date = document.querySelector("#st-date-input").value;
+      var lot_number = document.querySelector("#st-lot-input").value;
+      var description = document.querySelector("#st-description-input").value;
+      var user = 0;
+
+      var selected_in_or_out_button;
+      if (st_in_selected) {
+        selected_in_or_out_button = "in";
+      } else if (st_out_selected) {
+        selected_in_or_out_button = "out";
+      }
+      // alert(selected_in_or_out_button);
+
+      postNewStockTransaction(
+        (units = units),
+        (product_id = product_id),
+        (unit_measure = unit_measure),
+        (lot_number = lot_number),
+        (user = user),
+        (date = date),
+        (selected_in_or_out = selected_in_or_out_button),
+        (description = description)
+      );
+    });
+  }
+
+  function postNewStockTransaction(
+    units,
+    product_id,
+    unit_measure,
+    lot_number,
+    user,
+    date,
+    selected_in_or_out,
+    description
+  ) {
+    // alert("Posting new St");
+    // alert(selected_in_or_out);
+
+    let URL_POST_STOCK_TRANSACTION;
+    if (selected_in_or_out === "in") {
+      URL_POST_STOCK_TRANSACTION = "/api/post-inventory-stock-transaction/in/";
+    } else if (selected_in_or_out === "out") {
+      URL_POST_STOCK_TRANSACTION = "/api/post-inventory-stock-transaction/out/";
+    }
+
+    console.log(
+      "Url post stock transaction (in/out) : " + URL_POST_STOCK_TRANSACTION
+    );
+    // alert(URL_POST_STOCK_TRANSACTION);
+    var formdata = {
+      units: parseFloat(units),
+      product_id: product_id,
+      unit_measure: unit_measure,
+      lot_number: lot_number,
+      date: date,
+      user: user,
+      description: description,
+    };
+
+    $.ajax({
+      type: "POST",
+      url: URL_POST_STOCK_TRANSACTION,
+      data: formdata,
+      beforeSend: function (xhr) {
+        xhr.setRequestHeader("Authorization", token_string);
+      },
+      success: function (json_data) {
+        // alert(json_data);
+        if (json_data["success"] === true) {
+          console.log(json_data["data"]);
+          showToast("Stock Transaction added successfully", (type = "success"));
+          getAllStockTransactionsAndAppend(current_selected_product["id"]);
+        }
+      },
+      error: function (json_data) {
+        console.log(json_data);
+        console.log("ERROR POST STOCK TRANSACTION IN/OUT");
+      },
+    });
+  }
+
+  var next_product_select_btn = document.querySelector(
+    "#next-product-select-btn"
+  );
+  next_product_select_btn.addEventListener("click", () => {
+    selectNextOrPreviousProduct("next");
+  });
+
+  var previous_product_select_btn = document.querySelector(
+    "#previous-product-select-btn"
+  );
+  previous_product_select_btn.addEventListener("click", () => {
+    selectNextOrPreviousProduct("previous");
+  });
+
+  function selectNextOrPreviousProduct(selector) {
+    var product_btn_container = document.querySelector(
+      "#product-buttons-container"
+    );
+    var next_active_btn;
+    var first_btn;
+    var active_btn;
+    var prev_btn;
+
+    if (selector === "next") {
+      next_active_btn = document.querySelector(
+        "#product-buttons-container .active-button + button"
+      );
+
+      if (next_active_btn) {
+        $(next_active_btn).trigger("click");
+      } else {
+        first_btn = document.querySelector("#product-buttons-container button");
+        // select the first elem in product_btn_container
+        if (first_btn) {
+          $(first_btn).trigger("click");
+        } else {
+          // show a toast that no products exists
+        }
+      }
+    } else if (selector === "previous") {
+      active_btn = document.querySelector(
+        "#product-buttons-container .active-button"
+      );
+
+      if (active_btn) {
+        prev_btn = active_btn.previousSibling;
+        $(prev_btn).trigger("click");
+      } else {
+        first_btn = document.querySelector("#product-buttons-container button");
+        // select the first elem in product_btn_container
+        if (first_btn) {
+          $(first_btn).trigger("click");
+        } else {
+          // show a toast that no products exists
+        }
+      }
+    }
+  }
+
+  // go to new product entry form
+  var new_edit_btn = document.querySelector("#new-product-entry-btn");
+  new_edit_btn.addEventListener("click", () => {
+    // alert("clicked");
+    window.location.href = "//" + URL_NEW_PRODUCT_ENTRY_FORM;
+  });
+
+  // go to list page
+  var list_page_btn = document.querySelector("#list-page-btn");
+  list_page_btn.addEventListener("click", () => {
+    // alert("clicked");
+    window.location.href = "//" + URL_LIST_PAGE;
+  });
+
+  // Get products in asc order
+  var sort_asc = document.querySelector("#sort-btn-asc");
+  sort_asc.addEventListener("click", () => {
+    // alert("clicked");
+    selected_sort = "asc";
+    get_products_and_fill_list(
+      last_used_filter_category,
+      last_used_filter_category_value,
+      "asc"
+    );
+  });
+
+  // Get products in dec order
+  var sort_dec = document.querySelector("#sort-btn-dec");
+  sort_dec.addEventListener("click", () => {
+    // alert("clicked");
+    selected_sort = "dec";
+    get_products_and_fill_list(
+      last_used_filter_category,
+      last_used_filter_category_value,
+      "dec"
+    );
+  });
+
+  // forms links
+  var add_groups_form_a = document.querySelector("#add-groups-form-a");
+  add_groups_form_a.addEventListener("click", () => {
+    // alert("clicked");
+    window.location.href = "//" + URL_ADD_GROUPS_FORM;
+  });
+
+  var add_locations_form_a = document.querySelector("#add-locations-form-a");
+  add_locations_form_a.addEventListener("click", () => {
+    // alert("clicked");
+    window.location.href = "//" + URL_ADD_LOCATIONS_FORM;
+  });
+
+  var add_categories_form_a = document.querySelector("#add-categories-form-a");
+  add_categories_form_a.addEventListener("click", () => {
+    // alert("clicked");
+    window.location.href = "//" + URL_ADD_CATEGORIES_FORM;
+  });
+
+  var add_suppliers_form_a = document.querySelector("#add-suppliers-form-a");
+  add_suppliers_form_a.addEventListener("click", () => {
+    // alert("clicked");
+    window.location.href = "//" + URL_ADD_SUPPLIERS_FORM;
+  });
+
+  var add_units_measure_form_a = document.querySelector(
+    "#add-units-measure-form-a"
+  );
+  add_units_measure_form_a.addEventListener("click", () => {
+    // alert("clicked");
+    window.location.href = "//" + URL_ADD_UNITS_MEASURE_FORM;
+  });
+
+  // Get products in dec order
+  var print_report = document.querySelector("#print-btn");
+
+  print_report.addEventListener("click", () => {
+    get_products_by_location_and_print();
+  });
+
+  function get_products_by_location_and_print() {
+    var url =
+      URL_GET_ALL_INVENTORY_SORTED_BY_LOCATIONS +
+      "?sort=" +
+      selected_sort +
+      "/";
+    // alert(url);
+    $.ajax({
+      type: "GET",
+      url: url,
+      beforeSend: function (xhr) {
+        xhr.setRequestHeader("Authorization", token_string);
+      },
+      success: function (json_data) {
+        var counting = 0;
+        // alert(json_data);
+        if (json_data["success"] === true) {
+          console.log(json_data["data"]);
+
+          var parent_div = document.createElement("div");
+          parent_div.setAttribute("class", "table-div");
+          parent_div.setAttribute("id", "list-table-div-printable");
+          parent_div.style.padding = "30px";
+          parent_div.style.margin = "30px";
+
+          var table_elem = document.createElement("table");
+          table_elem.setAttribute("class", "table table-striped");
+
+          var thread_elem = document.createElement("thread");
+
+          var thread_tr = document.createElement("tr");
+
+          var thread_tr_th_num = document.createElement("th");
+          thread_tr_th_num.setAttribute("scope", "col");
+          thread_tr_th_num.style.width = "3%";
+          thread_tr_th_num.innerHTML = "#";
+
+          var thread_tr_th_item_name = document.createElement("th");
+          thread_tr_th_item_name.setAttribute("scope", "col");
+          thread_tr_th_item_name.style.width = "15%";
+          thread_tr_th_item_name.innerHTML = "Item Name";
+
+          var thread_tr_th_item_stock = document.createElement("th");
+          thread_tr_th_item_stock.setAttribute("scope", "col");
+          thread_tr_th_item_stock.style.width = "5%";
+          thread_tr_th_item_stock.innerHTML = "Stock";
+
+          var thread_tr_th_item_min_level = document.createElement("th");
+          thread_tr_th_item_min_level.setAttribute("scope", "col");
+          thread_tr_th_item_min_level.style.width = "5%";
+          thread_tr_th_item_min_level.innerHTML = "Min Level";
+
+          var thread_tr_th_item_um = document.createElement("th");
+          thread_tr_th_item_um.setAttribute("scope", "col");
+          thread_tr_th_item_um.style.width = "5%";
+          thread_tr_th_item_um.innerHTML = "UM";
+
+          var thread_tr_th_item_description = document.createElement("th");
+          thread_tr_th_item_description.setAttribute("scope", "col");
+          thread_tr_th_item_description.style.width = "20%";
+          thread_tr_th_item_description.innerHTML = "Description";
+
+          var thread_tr_th_item_category = document.createElement("th");
+          thread_tr_th_item_category.setAttribute("scope", "col");
+          thread_tr_th_item_category.style.width = "10%";
+          thread_tr_th_item_category.innerHTML = "Category";
+
+          var thread_tr_th_item_availability = document.createElement("th");
+          thread_tr_th_item_availability.setAttribute("scope", "col");
+          thread_tr_th_item_availability.style.width = "10%";
+          thread_tr_th_item_availability.innerHTML = "Availability";
+
+          thread_tr.appendChild(thread_tr_th_num);
+          thread_tr.appendChild(thread_tr_th_item_name);
+          thread_tr.appendChild(thread_tr_th_item_stock);
+          thread_tr.appendChild(thread_tr_th_item_min_level);
+          thread_tr.appendChild(thread_tr_th_item_um);
+          thread_tr.appendChild(thread_tr_th_item_description);
+          thread_tr.appendChild(thread_tr_th_item_category);
+          thread_tr.appendChild(thread_tr_th_item_availability);
+
+          thread_elem.appendChild(thread_tr);
+
+          table_elem.appendChild(thread_elem);
+
+          var tbody_elem = document.createElement("tbody");
+          tbody_elem.setAttribute("id", "list-table-body-printable");
+          tbody_elem.innerHTML = "";
+
+          for (let i = 0; i < json_data["data"]["count"]; i++) {
+            // console.log(json_data["data"]["list"][i]["ItemName"]);
+
+            var table_row_location_h = document.createElement("tr");
+
+            var table_row_location_h_td_blank = document.createElement("td");
+            table_row_location_h_td_blank.innerHTML = "";
+
+            var table_row_location_h_td_heading = document.createElement("td");
+            table_row_location_h_td_heading.innerHTML =
+              json_data["data"]["list"][i]["location_name"].italics();
+            table_row_location_h_td_heading.style.fontWeight = 600;
+
+            table_row_location_h.appendChild(table_row_location_h_td_blank);
+            table_row_location_h.appendChild(table_row_location_h_td_heading);
+
+            tbody_elem.appendChild(table_row_location_h);
+
+            for (
+              let j = 0;
+              j < json_data["data"]["list"][i]["inventory_count"];
+              j++
+            ) {
+              var tr_inventory = document.createElement("tr");
+
+              var th_row_num = document.createElement("th");
+              var p_row_num = document.createElement("p");
+              counting = counting + 1;
+              p_row_num.innerHTML = counting;
+              th_row_num.appendChild(p_row_num);
+              tr_inventory.appendChild(th_row_num);
+
+              var td_item_name = document.createElement("td");
+              var p_item_name = document.createElement("p");
+              p_item_name.innerHTML =
+                json_data["data"]["list"][i]["inventory_list"][j]["ItemName"];
+              td_item_name.appendChild(p_item_name);
+              tr_inventory.appendChild(td_item_name);
+
+              var td_stock = document.createElement("td");
+              var p_stock = document.createElement("p");
+              p_stock.innerHTML =
+                json_data["data"]["list"][i]["inventory_list"][j][
+                  "units_on_hand_value"
+                ];
+              td_stock.appendChild(p_stock);
+              tr_inventory.appendChild(td_stock);
+
+              var td_min_level = document.createElement("td");
+              var p_min_level = document.createElement("p");
+              p_min_level.innerHTML =
+                json_data["data"]["list"][i]["inventory_list"][j][
+                  "ReorderLevel"
+                ];
+              td_min_level.appendChild(p_min_level);
+              tr_inventory.appendChild(td_min_level);
+
+              var td_um = document.createElement("td");
+              var p_um = document.createElement("p");
+              // p_um.innerHTML =
+              //   json_data["data"]["list"][i]["inventory_list"][j][
+              //     "UnitsMeasure"
+              //   ];
+              // FIXME:
+              p_um.innerHTML =
+                json_data["data"]["list"][i]["inventory_list"][j][
+                  "UnitsMeasure"
+                ]["name"];
+              td_um.appendChild(p_um);
+              tr_inventory.appendChild(td_um);
+
+              var td_description = document.createElement("td");
+              var p_description = document.createElement("p");
+              p_description.innerHTML =
+                json_data["data"]["list"][i]["inventory_list"][j][
+                  "ItemDescription"
+                ];
+              td_description.appendChild(p_description);
+              tr_inventory.appendChild(td_description);
+
+              var td_category = document.createElement("td");
+              var p_category = document.createElement("p");
+              p_category.innerHTML =
+                json_data["data"]["list"][i]["inventory_list"][j]["Category"][
+                  "name"
+                ];
+              td_category.appendChild(p_category);
+              tr_inventory.appendChild(td_category);
+
+              var td_availability = document.createElement("td");
+              var p_availability = document.createElement("p");
+              const availability_array =
+                json_data["data"]["list"][i]["inventory_list"][j][
+                  "stock_availability_value"
+                ].split("|");
+              p_availability.innerHTML = availability_array[0];
+              p_availability.style.color = availability_array[1];
+              td_availability.appendChild(p_availability);
+              tr_inventory.appendChild(td_availability);
+
+              tbody_elem.appendChild(tr_inventory);
+            }
+          }
+          table_elem.appendChild(tbody_elem);
+          var parent_div_heading = document.createElement("h1");
+          parent_div_heading.innerHTML = "Inventory";
+
+          parent_div.appendChild(parent_div_heading);
+          parent_div.appendChild(table_elem);
+
+          var newWin = window.open("", "", "height=650, width=650");
+          newWin.document.write("");
+          newWin.document.write(parent_div.innerHTML);
+          newWin.document.close();
+          newWin.print();
+        }
+      },
+      error: function (json_data) {
+        console.log("ERROR GETTING PRINTABLE REPORT");
+        showToast("Not able to fetch the report", (type = "warning"));
+      },
+    });
+  }
+
+  // Add event listener of delete button
+  var del_btn = document.querySelector("#product-delete-btn");
+  del_btn.addEventListener("click", () => {
+    if (current_selected_product === null) {
+      showToast("No entry selected", "warning");
+    } else {
+      swal({
+        title: "Are you sure?",
+        text: "Delete the entry",
+        icon: "warning",
+        buttons: true,
+        dangerMode: true,
+      }).then((willDelete) => {
+        if (willDelete) {
+          // deleteStockTransactionAndRefreshTable(stock_transaction_id, product_id);
+          let URL_DELETE_INVENTORY =
+            URL_BASE_DELETE_INVENTORY + current_selected_product["id"] + "/";
+          current_selected_product = null;
+          console.log("DELETIING NOW");
+          console.log("DELETIING NOW URL " + URL_DELETE_INVENTORY);
+
+          $.ajax({
+            type: "POST",
+            url: URL_DELETE_INVENTORY,
+            beforeSend: function (xhr) {
+              xhr.setRequestHeader("Authorization", token_string);
+            },
+            success: function (json_data) {
+              if (json_data["success"] === true) {
+                var name = $("#search-list-entries").val();
+                $("#list-item-name").val("");
+                get_products_and_fill_list(
+                  (search_by = last_used_filter_category),
+                  (search = last_used_filter_category_value),
+                  (sort = selected_sort)
+                );
+                showToast("Entry successfully deleted", (type = "success"));
+                resetFormFields();
+
+                // var first_btn = document.querySelector("#product-buttons-container button");
+                // // select the first elem in product_btn_container
+                // if (first_btn) {
+                //   $(first_btn).trigger("click");
+                // }
+                // else{
+                //   // reset form
+                // }
+              }
+            },
+            error: function (json_data) {
+              console.log("ERROR Delete List Item");
+            },
+          });
+        } else {
+        }
+      });
+    }
+  });
+
+  // var this_btn = document.querySelector("#this-button");
+  // this_btn.addEventListener("click", ()=>{
+  //   clickedOnThis();
+  // });
+
+  function getGroupsAndShowInSearchBox(group_name) {
+    var URL_GET_ALL_GROUPS = "api/get-all-groups/?name=" + group_name;
+    $.ajax({
+      type: "GET",
+      url: URL_GET_ALL_GROUPS,
+      beforeSend: function (xhr) {
+        xhr.setRequestHeader("Authorization", token_string);
+      },
+      success: function (json_data) {
+        // alert(json_data);
+        if (json_data["success"] === true) {
+          console.log(json_data["data"]);
+        }
+      },
+      error: function (json_data) {
+        console.log("ERROR Getting groups");
+      },
+    });
+  }
+
+  function clickedOnThis() {
+    alert("RUNNING");
+    var s = document.getElementById("categories-options");
+    s.selectedIndex = 0;
+    get_products_and_fill_list("groups", "1");
+  }
+
+  // Group Search Bar
+  var group_search_input = document.querySelector("#group-search-input");
+  group_search_input.dataset.value = 0;
+  group_search_input.addEventListener("focusin", () => {
+    // alert("focusin");
+    var input_field = document.querySelector("#group-search-input");
+    if (input_field.value === null || input_field.value === "") {
+      selected_group_id = null;
+    }
+    fillGroupsSuggestionDiv((input_value = input_field.value));
+    document.querySelector("#group-search-results-div").style.display = "block";
+  });
+
+  group_search_input.addEventListener("blur", () => {
+    // alert("focusout")
+    // alert(this.value)
+    if (!this.value) {
+      get_products_and_fill_list(
+        last_used_filter_category,
+        last_used_filter_category_value,
+        selected_sort
+      );
+      // alert("here");
+    }
+  });
+
+  $(document).click(function (e) {
+    if ($(e.target).is("#group-search-input, #group-search-results-div")) {
+      return;
+    } else {
+      document.getElementById("group-search-results-div").style.display =
+        "none";
+    }
+  });
+
+  group_search_input.addEventListener("keyup", () => {
+    var input_field = document.querySelector("#group-search-input");
+    if (input_field.value === null || input_field.value === "") {
+      selected_group_id = null;
+    }
+    fillGroupsSuggestionDiv((input_value = group_search_input.value));
+    document.querySelector("#group-search-results-div").style.display = "block";
+  });
+
+  function fillGroupsSuggestionDiv(input_value = "") {
+    var url = URL_GET_ALL_GROUPS + "?name=" + input_value;
+
+    $.ajax({
+      type: "GET",
+      url: url,
+      beforeSend: function (xhr) {
+        xhr.setRequestHeader("Authorization", token_string);
+      },
+      success: function (json_data) {
+        // alert(json_data);
+        if (json_data["success"] === true) {
+          // alert("Groups");
+          console.log(json_data);
+          if (json_data["data"]["count"] === 0) {
+            document.querySelector("#nothing-found-para").style.display =
+              "block";
+            document.querySelector(
+              "#group-search-suggestion-list"
+            ).style.display = "none";
+          } else {
+            document.querySelector("#nothing-found-para").style.display =
+              "none";
+            document.querySelector(
+              "#group-search-suggestion-list"
+            ).style.display = "block";
+
+            var suggestion_box_ul = document.querySelector(
+              "#group-search-suggestion-list"
+            );
+            suggestion_box_ul.innerHTML = "";
+
+            for (let i = 0; i < json_data["data"]["count"]; i++) {
+              var item_link = document.createElement("a");
+              item_link.setAttribute("class", "list-links-a");
+              item_link.setAttribute("href", "javascript:void(0);");
+              item_link.dataset.id = json_data["data"]["list"][i]["id"];
+              item_link.dataset.name = json_data["data"]["list"][i]["name"];
+
+              var list_item = document.createElement("li");
+              list_item.setAttribute("class", "suggestion-list-item");
+              list_item.innerHTML = json_data["data"]["list"][i]["name"];
+
+              item_link.appendChild(list_item);
+              suggestion_box_ul.appendChild(item_link);
+            }
+
+            addingEventListenerToSuggestionBoxLinks();
+          }
+        }
+      },
+      error: function (json_data) {
+        // alert("ERROR");
+        console.log("ERROR URL GET ALL Groups");
+      },
+    });
+  }
+
+  // calling this to fill the suggestion box with all the groups
+  fillGroupsSuggestionDiv();
+
+  function addingEventListenerToSuggestionBoxLinks() {
+    // get_inventory_and_fill_table(search_by="groups", search="", sort=selected_sort);
+
+    var group_suggestions_a = document.getElementsByClassName("list-links-a");
+
+    for (let i = 0; i < group_suggestions_a.length; i++) {
+      group_suggestions_a[i].addEventListener("click", () => {
+        // get_inventory_and_fill_table(
+        //   (search_by = "groups"),
+        //   (search = group_suggestions_a[i].dataset.id),
+        //   (sort = selected_sort)
+        // );
+        document.querySelector("#group-search-results-div").style.display =
+          "none";
+        document.querySelector("#group-search-input").value =
+          group_suggestions_a[i].dataset.name;
+        // document.querySelector("#group-search-input").dataset.value =
+        // group_suggestions_a[i].dataset.id;
+        selected_group_id = parseInt(group_suggestions_a[i].dataset.id);
+        current_selected_product = null;
+        resetFormFields();
+        get_products_and_fill_list(
+          last_used_filter_category,
+          last_used_filter_category_value,
+          selected_sort
+        );
+        // alert("here")
+      });
+    }
+  }
+
+  // Group search bar END
+
+  // Add event listener to fields to update them
+  function addEventListenerToFields() {
+    const inputs = document.querySelectorAll(".change-listener-class");
+
+    inputs.forEach((i) => {
+      i.addEventListener("focusin", function handleClick(event) {
+        // console.log('i focusin', event);
+        // event.target.style.background = 'pink';
+        focused_field_value = i.value;
+        // console.log(focused_field_value);
+        // console.log(i.getAttribute("name"));
+        i.setAttribute("style", "background-color: rgb(218, 222, 230);");
+      });
+
+      i.addEventListener("blur", function handleClick(event) {
+        // console.log('i focusout', event);
+        // event.target.style.background = 'blue';
+        // console.log(event.target.value);
+        // console.log(i.value);
+        // console.log(i.getAttribute("name"));
+
+        i.setAttribute("style", 'background-color: "white";');
+        // alert(typeof(i.value));
+        // alert(typeof(focused_field_value));
+        if (i.value !== focused_field_value) {
+          alert("Different yoo");
+          updateField(
+            (name_field = i.getAttribute("name")),
+            (value_field = i.value),
+            (id = current_selected_product["id"])
+          );
+        }
+      });
+    });
+
+    // Event listener for date fields
+    const date_fields = document.querySelectorAll(
+      ".change-listener-class-date"
+    );
+    date_fields.forEach((i) => {
+      i.addEventListener("change", (event) => {
+        updateField(
+          (name_field = event.target.getAttribute("name")),
+          (value_field = event.target.value),
+          (id = current_selected_product["id"])
+        );
+      });
+    });
+
+    // Event listener for fields with many to many relationships
+    const many_to_many_fields = document.querySelectorAll(
+      ".change-listener-class-many-to-many"
+    );
+    many_to_many_fields.forEach((i) => {
+      i.addEventListener("change", (event) => {
+        var selected = [];
+        for (var option of event.target.options) {
+          if (option.selected) {
+            selected.push(option.value);
+          }
+        }
+        updateFieldManytoMany(
+          (name_field = event.target.getAttribute("name")),
+          (value_field = selected),
+          (id = current_selected_product["id"])
+        );
+      });
+    });
+  }
+
+  // FIXME: Api is giving 500 server error but it is updating. I have roved he toast that shows the error
+  // function updateField(name_field, value_field, id) {
+  //   // console.log("VALUE CHANGED");
+  //   // console.log("OLD: " + focused_field_value);
+  //   // console.log("New: " + value_field);
+  //   // console.log("ID: " + id);
+
+  //   const formData = new FormData();
+  //   formData.append(name_field, value_field);
+
+  //   var url = URL_UPDATE_INVENTORY + id + "/";
+
+  //   $.ajax({
+  //     type: "POST",
+  //     url: url,
+  //     data: formData,
+  //     processData: false,
+  //     contentType: false,
+  //     beforeSend: function (xhr) {
+  //       xhr.setRequestHeader("Authorization", token_string);
+  //     },
+  //     success: function (json_data) {
+  //       // alert(json_data);
+  //       if (json_data["success"] === true) {
+  //         // console.log(json_data["data"]);
+  //         showToast("Field Updated", (type = "success"));
+  //       }
+  //     },
+  //     error: function (json_data) {
+  //       console.log("ERROR");
+  //       console.log(json_data);
+  //       showToast(json_data[responseJSON]["message"])
+  //       // console.log("ERROR UPDATING FIELD");
+  //       showToast(json_data.responseJSON.message, type="warning");
+  //     },
+  //   });
+  // }
+
+  function updateField(name_field, value_field, id) {
+    console.log("VALUE CHANGED");
+    console.log("OLD: " + focused_field_value);
+    console.log("New: " + value_field);
+    console.log("ID: " + id);
+
+    const formData = new FormData();
+    formData.append(name_field, value_field);
+
+    var object = {};
+    formData.forEach(function (value, key) {
+      if (!value || value === "") {
+        object[key] = null;
+      } else {
+        object[key] = value;
+      }
+    });
+
+    var json = JSON.stringify(object);
+
+    var url = URL_UPDATE_INVENTORY + id + "/";
+
+    $.ajax({
+      type: "POST",
+      url: url,
+      data: json,
+      processData: false,
+      contentType: "application/json",
+      beforeSend: function (xhr) {
+        xhr.setRequestHeader("Authorization", token_string);
+      },
+      success: function (json_data) {
+        // alert(json_data);
+        if (json_data["success"] === true) {
+          // console.log(json_data["data"]);
+          showToast("Field Updated", (type = "success"));
+        }
+      },
+      error: function (json_data) {
+        console.log("ERROR UPDATING FIELD");
+        // showToast("Field update failed", type="warning");
+      },
+    });
+  }
+
+  function updateFieldManytoMany(name_field, id_field, id) {
+    // console.log("VALUE CHANGED");
+    // console.log("OLD: " + focused_field_value);
+    // console.log("New: " + value_field);
+    // console.log("ID: " + id);
+
+    const formData = new FormData();
+    formData.append(name_field, value_field);
+
+    var object = {};
+
+    object[name_field] = value_field;
+    // alert(object[name_field]);
+
+    var json = JSON.stringify(object);
+
+    var url = URL_UPDATE_INVENTORY + id + "/";
+
+    $.ajax({
+      type: "POST",
+      url: url,
+      data: json,
+      processData: false,
+      contentType: "application/json",
+      beforeSend: function (xhr) {
+        xhr.setRequestHeader("Authorization", token_string);
+      },
+      success: function (json_data) {
+        // alert(json_data);
+        if (json_data["success"] === true) {
+          // console.log(json_data["data"]);
+          showToast("Field Updated", (type = "success"));
+        }
+      },
+      error: function (json_data) {
+        console.log("ERROR UPDATING FIELD");
+        // showToast("Field update failed", type="warning");
+      },
+    });
+  }
+
+  var approve_btn = document.querySelector("#approve-product-btn-div");
+  approve_btn.addEventListener("click", () => {
+    if (current_selected_product === null) {
+      showToast("No Product Selected", (type = "warning"));
+    }
+
+    const formData = new FormData();
+    formData.append("product_id", current_selected_product["id"]);
+
+    var url = URL_APPROVE_INVENTORY;
+    $.ajax({
+      type: "POST",
+      url: url,
+      data: formData,
+      processData: false,
+      contentType: false,
+      beforeSend: function (xhr) {
+        xhr.setRequestHeader("Authorization", token_string);
+      },
+      success: function (json_data) {
+        // alert(json_data);
+        if (json_data["success"] === true) {
+          console.log(json_data["data"]);
+          showToast("Product approved ", (type = "success"));
+
+          resetFormFields();
+          current_selected_product = null;
+
+          get_products_and_fill_list(
+            (search_by = last_used_filter_category),
+            (search = last_used_filter_category_value),
+            (sort = selected_sort)
+          );
+        }
+      },
+      error: function (json_data) {
+        console.log("ERROR APPROVING THE PRODUCT");
+        showToast("Failed to approve the product", (type = "warning"));
+      },
+    });
+  });
+
+  function addEventListenerToSDSFields() {
+    const inputs = document.querySelectorAll(".sds-change-listener-class");
+
+    inputs.forEach((i) => {
+      i.addEventListener("focusin", function handleClick(event) {
+        focused_field_value = i.value;
+        i.setAttribute("style", "background-color: rgb(218, 222, 230);");
+      });
+
+      i.addEventListener("blur", function handleClick(event) {
+        i.setAttribute("style", 'background-color: "white";');
+        if (i.value !== focused_field_value) {
+          updateSDSField(
+            (name_field = i.getAttribute("name")),
+            (value_field = i.value),
+            (id_product = current_selected_product["id"]),
+            (id_sds = selected_sds_record_id)
+          );
+        }
+      });
+    });
+  }
+
+  function updateSDSField(name_field, value_field) {
+    const formData = new FormData();
+    formData.append(name_field, value_field);
+
+    var url = URL_UPDATE_SDS_RECORD + selected_sds_record_id + "/";
+
+    $.ajax({
+      type: "POST",
+      url: url,
+      data: formData,
+      processData: false,
+      contentType: false,
+      beforeSend: function (xhr) {
+        xhr.setRequestHeader("Authorization", token_string);
+      },
+      success: function (json_data) {
+        // alert(json_data);
+        if (json_data["success"] === true) {
+          // console.log(json_data["data"]);
+          showToast("Field Updated", (type = "success"));
+        }
+      },
+      error: function (json_data) {
+        console.log("ERROR UPDATING FIELD");
+        showToast("Field update failed", (type = "warning"));
+      },
+    });
+  }
+
+  function add_event_listeners_update_to_st_fields() {
+    const inputs = document.querySelectorAll(
+      ".stock-transaction-change-listener-class"
+    );
+
+    inputs.forEach((i) => {
+      i.addEventListener("focusin", function handleClick(event) {
+        // console.log('i focusin', event);
+        // event.target.style.background = 'pink';
+        focused_field_value = i.value;
+        // console.log(focused_field_value);
+        // console.log(i.getAttribute("name"));
+        // i.setAttribute("style", "background-color: rgb(218, 222, 230);");
+        // i.style.backgroundColor = "rgb(218, 222, 230)";
+        i.classList.add("st-temp-jugad");
+      });
+
+      i.addEventListener("blur", function handleClick(event) {
+        // console.log('i focusout', event);
+        // event.target.style.background = 'blue';
+        // console.log(event.target.value);
+        // console.log(i.value);
+        // console.log(i.getAttribute("name"));
+        // i.setAttribute("style", 'background-color: "white";');
+        // i.style.backgroundColor = "white";
+        i.classList.remove("st-temp-jugad");
+
+        // alert(typeof(i.value));
+        // alert(typeof(focused_field_value));
+        if (i.value !== focused_field_value) {
+          // alert("Different yoo");
+          updateStockTransactionField(
+            (name_field = i.getAttribute("name")),
+            (value_field = i.value),
+            (id_product = current_selected_product["id"]),
+            (id_stock_transaction = i.getAttribute("data-stid"))
+          );
+        }
+      });
+    });
+
+    var st_date = document.querySelector(
+      ".stock-transaction-change-listener-class-date"
+    );
+    if (st_date !== null) {
+      st_date.addEventListener("change", (event) => {
+        updateStockTransactionField(
+          (name_field = event.target.getAttribute("name")),
+          (value_field = event.target.value),
+          (id_product = current_selected_product["id"]),
+          (id_stock_transaction = event.target.getAttribute("data-stid"))
+        );
+      });
+    }
+  }
+
+  function updateStockTransactionField(
+    name_field,
+    value_field,
+    id_product,
+    id_stock_transaction
+  ) {
+    var url = URL_UPDATE_STOCK_TRANSACTION + id_stock_transaction + "/";
+
+    const formData = new FormData();
+    formData.append(name_field, value_field);
+
+    var object = {};
+    formData.forEach(function (value, key) {
+      if (!value || value === "") {
+        object[key] = null;
+      } else {
+        object[key] = value;
+      }
+    });
+
+    var json = JSON.stringify(object);
+
+    $.ajax({
+      type: "POST",
+      url: url,
+      data: json,
+      processData: false,
+      contentType: "application/json",
+      beforeSend: function (xhr) {
+        xhr.setRequestHeader("Authorization", token_string);
+      },
+      success: function (json_data) {
+        // alert(json_data);
+        if (json_data["success"] === true) {
+          // console.log(json_data["data"]);
+          showToast("Field Updated", (type = "success"));
+        }
+      },
+      error: function (json_data) {
+        console.log("ERROR UPDATING FIELD");
+        showToast("Field update failed", (type = "warning"));
+      },
+    });
+  }
+
+  function resetFormFields() {
+    // resets form fields
+    // make currently selected product to null
+    // make currently selected sds record id to null
+
+    document.querySelector("#product-name-heading").innerHTML =
+      "Select Product..";
+    document.querySelector("#record-id").innerHTML = "";
+    document.querySelector("#product-date-entered").value = "";
+    document.querySelector("#product-name").value = "";
+    document.querySelector("#product-known-as").value = "";
+    document.querySelector("#product-description").value = "";
+    document.querySelector("#product-location-options").value = "0";
+    document.querySelector("#product-category-options").value = "0";
+    document.querySelector("#product-group-options").value = "0";
+    document.querySelector("#product-status-options").value = "0";
+    document.querySelector("#product-date-expired").value = "";
+    document.querySelector("#product-supplier-options").value = "0";
+    document.querySelector("#product-model-year").value = "";
+    document.querySelector("#product-part-number").value = "";
+    document.querySelector("#product-barcode-label").value = "";
+    document.querySelector("#product-stock-status").value = "";
+    document.querySelector("#product-units-on-hand").value = "";
+    document.querySelector("#product-um-options").value = "0";
+    document.querySelector("#product-reorder-level").value = "";
+    document.querySelector("#product-min-order").value = "";
+    document.querySelector("#product-date-last-ordered").value = "";
+    document.querySelector("#product-unit-price").value = "";
+    document.querySelector("#product-date-last-used").value = "";
+    document.querySelector("#product-taxable").value = "";
+    document.querySelector("#product-last-modified").value = "";
+    document.querySelector("#product-tax").value = "";
+    document.querySelector("#product-delivery-charge").value = "";
+    document.querySelector("#product-stock-ext-value").value = "";
+    document.querySelector("#product-total-value").value = "";
+    document.querySelector("#sds-requested-by").value = "";
+    document.querySelector("#sds-requested-by-date").value = "";
+    document.querySelector("#sds-approved-by").value = "";
+    document.querySelector("#sds-approved-by-date").value = "";
+    document.querySelector("#sds-on-file-checkbox").checked = false;
+    document.querySelector("#sds-name").value = "";
+    document.querySelector("#sds-cas-num").value = "";
+    document.querySelector("#sds-component").value = "";
+    document.querySelector("#sds-url").value = "";
+    document.querySelector("#product-image").src =
+      "https://image.made-in-china.com/2f0j00yosfPngahbcQ/Promotion-Oversized-Product-Package-Cardboard-Dummy-Boxes-Bin-for-Storage.jpg";
+
+    current_selected_product = null;
+    // selected_group_id = null;
+    // selected_sds_record_id = null;
+    // document.querySelector("#st-table-body").innerHTML = "";
+    const st = document.querySelectorAll(".st-table-row");
+    st.forEach((i) => {
+      i.remove();
+    });
+  }
+
+  // updateField(name_field = "SDSOnFile", value_field = false, id = 2);
+});

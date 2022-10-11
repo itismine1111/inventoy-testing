@@ -1,0 +1,547 @@
+{% extends 'app_frontend/index_base.html' %} 
+{% load static %}
+
+{% block title %}
+<title>New Product Entry</title>
+{% endblock title %}
+
+{% block styles %}
+<!-- <link
+    href="{% static 'app_frontend/css/enter_new_product.css' %}"
+    rel="stylesheet"
+    /> -->
+
+<style>
+  #approval-form-h1 {
+    font-size: 25px;
+    font-weight: 800;
+    margin-bottom: 3px !important;
+  }
+
+  #approval-form-hr {
+    border: none;
+    height: 2px;
+    background-color: rgb(38, 175, 255);
+    margin-top: 0px !important;
+  }
+
+  #chemical-purhase-report-hr {
+    border: none;
+    height: 1px;
+    background-color: #333;
+    margin-top: 0px !important;
+  }
+
+  #chemical-purchase-report-row {
+    flex-direction: row-reverse;
+  }
+
+  #company-name {
+    font-size: 28px;
+    font-weight: 500;
+  }
+
+  #Supplier{
+    padding: 0px;
+  }
+  
+  .forms-drpdown-div{
+    min-width: 220px;
+    background-color: #ECECEC;
+  }
+  .form-dropdown-a{
+    font-size: 16px;
+    text-decoration: none;
+    color: black
+  }
+
+  #snackbar {
+    visibility: hidden;
+    min-width: 250px;
+    margin-left: -125px;
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    border-radius: 2px;
+    padding: 16px;
+    position: fixed;
+    z-index: 1;
+    left: 50%;
+    bottom: 30px;
+    font-size: 17px;
+  }
+  
+  #snackbar.show {
+    visibility: visible;
+    -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
+    animation: fadein 0.5s, fadeout 0.5s 2.5s;
+  }
+  
+  @-webkit-keyframes fadein {
+    from {bottom: 0; opacity: 0;} 
+    to {bottom: 30px; opacity: 1;}
+  }
+  
+  @keyframes fadein {
+    from {bottom: 0; opacity: 0;}
+    to {bottom: 30px; opacity: 1;}
+  }
+  
+  @-webkit-keyframes fadeout {
+    from {bottom: 30px; opacity: 1;} 
+    to {bottom: 0; opacity: 0;}
+  }
+  
+  @keyframes fadeout {
+    from {bottom: 30px; opacity: 1;}
+    to {bottom: 0; opacity: 0;}
+  }
+</style>
+{% endblock styles %}
+
+
+{% block topNavigation %}
+  <!-- ===== Top-Navigation ===== -->
+  <nav class="navbar navbar-default navbar-static-top m-b-0">
+    <div class="navbar-header">
+      <a
+        class="navbar-toggle font-16 hidden-sm hidden-md hidden-lg"
+        href="javascript:void(0)"
+        data-toggle="collapse"
+        data-target=".navbar-collapse"
+      >
+        <i class="fa fa-bars"></i>
+      </a>
+      <ul class="nav navbar-top-links navbar-left">
+        {% comment %} <li class="dropdown">
+          <!-- <a class="dropdown-toggle waves-effect waves-light font-20" data-toggle="dropdown" href="javascript:void(0);">
+                                <i class="ti-align-justify"></i>
+                </a> -->
+
+          <div class="open-btn"><i class="fa-solid fa-bars"></i></div>
+          <div class="menu">
+            <div class="close-btn"><i class="fa-solid fa-xmark"></i></div>
+            <button class="btn btn-danger" id="logout-btn">Logout</button>
+          </div>
+        </li> {% endcomment %}
+        <li class="dropdown">
+          <a
+            class="dropdown-toggle waves-effect waves-light font-16"
+            data-toggle="dropdown"
+            href="javascript:void(0);"
+            id="list-page-btn"
+          >
+            <!-- <i class="ti-align-justify"></i> -->
+            <i class="fa-solid fa-list-check"></i>
+            <span style="font-size: 16px">List</span>
+          </a>
+        </li>
+        <li class="dropdown">
+          <a
+            class="dropdown-toggle waves-effect waves-light font-16"
+            data-toggle="dropdown"
+            href="javascript:void(0);"
+          >
+            <!-- <i class=" ti-file "></i> -->
+            <i class="fa-solid fa-file"></i>
+            <span style="font-size: 16px">Process</span>
+          </a>
+        </li>
+        <li class="dropdown">
+          <a
+            class="dropdown-toggle waves-effect waves-light font-16"
+            data-toggle="dropdown"
+            href="javascript:void(0);"
+            id="forms-dropdown-button"  
+          >
+            <!-- <i class="ti-pencil-alt"></i> -->
+            <i class="fa-solid fa-pen-to-square"></i>
+            <span style="font-size: 16px">Form</span>
+          </a>
+          <div class="dropdown-menu forms-drpdown-div" aria-labelledby="forms-dropdown-button">
+            <a class="dropdown-item form-dropdown-a" href="javascript:void(0)/" id="add-groups-form-a">Add Groups Form</a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item form-dropdown-a" href="javascript:void(0)" id="add-locations-form-a">Add Locations Form</a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item form-dropdown-a" href="javascript:void(0)" id="add-categories-form-a">Add Categories Form</a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item form-dropdown-a" href="javascript:void(0)" id="add-suppliers-form-a">Add Suppliers Form</a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item form-dropdown-a" href="javascript:void(0)" id="add-units-measure-form-a">Add Units Measure Form</a>
+            <div class="dropdown-divider"></div>
+          </div>
+        </li>
+      </ul>
+      <ul class="nav navbar-top-links navbar-left hidden-xs">
+      </ul>
+      <ul class="nav navbar-top-links navbar-left">
+        <li class="dropdown">
+          <a
+            class="dropdown-toggle waves-effect waves-light font-16"
+            data-toggle="dropdown"
+            href="javascript:void(0);"
+            id="print-btn"
+          >
+            <!-- <i class="ti-printer"></i> -->
+            <i class="fa-solid fa-print"></i>
+            <span style="font-size: 16px">Print</span>
+          </a>
+        </li>
+        <li class="dropdown">
+          <a
+            class="dropdown-toggle waves-effect waves-light font-16"
+            data-toggle="dropdown"
+            href="javascript:void(0);"
+            id="home-btn"
+          >
+            <!-- <i class="ti-home"></i> -->
+            <i class="fa-solid fa-house"></i>
+            <span style="font-size: 16px">Home</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+{% endblock topNavigation %}
+
+
+
+
+
+{% block pageContent %}
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-md-4 col-sm-4">
+      <h1 class="box-title m-t-0" id="approval-form-h1">Approval Form</h1>
+      <hr id="approval-form-hr">
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-1 col-sm-1"></div>
+    <div class="col-md-8 col-sm-8 p-r-0">
+      <div class="white-box stat-widget">
+        <!-- Heading approval form -->
+        <div class="row">
+
+          <div class="col-md-9 col-sm-9"></div>
+        </div>
+        <!-- company name heading -->
+        <div class="row">
+          <div class="col-md-3 col-sm-3" style="margin-bottom: -20px;">
+            <h1 class="box-title m-t-0" id="company-name">Translarity</h1>
+          </div>
+          <!-- <div class="col-md-9 col-sm-9"></div> -->
+        </div>
+        <div class="row" id="chemical-purchase-report-row">
+          <div class="col-md-12 col-sm-12">
+            <h1 class="box-title m-t-0" id="approval-form-h1">Chemical Purchase Report</h1>
+            <hr id="chemical-purhase-report-hr">
+          </div>
+
+        </div>
+        <form class="form-horizontal" action="" id="new-product-form" enctype="multipart/form-data" >
+          <div class="row no-gutters">
+            <div class="col-md-4">
+              <div class="form-group">
+                <label for="DateEntered" class="col-sm-3 control-label">
+                  Date Entered
+                </label>
+                <div class="col-sm-9">
+                  <input type="date" class="form-control" id="DateEntered" placeholder="" name="DateEntered"/>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                <label for="RequestedBy" class="col-sm-3 control-label">Requested By
+                  </label>
+                <div class="col-sm-9">
+                  <input type="text" class="form-control" id="RequestedBy" placeholder="" name="RequestedBy" />
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                <label for="RequestedByDate" class="col-sm-3 control-label">Date</label>
+                <div class="col-sm-9">
+                  <input type="date" class="form-control" id="RequestedByDate" placeholder="" name="RequestedByDate" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <div class="col-md-7">
+              <div class="row" style="padding-left:25px;">
+                <label for="ItemName" class="col-sm-3 control-label">Item Name *</label>
+                <div class="col-sm-9">
+                  <input type="text" class="form-control needed-field" id="ItemName" name="ItemName" placeholder="Comet or Toilet Cleaner" />
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-5">
+              <input type="radio" class="" value="reorder" />
+              <label>Reorder</label>
+              <input type="radio" class="" value="neworder" style="margin-left: 25px;"/>
+              <label>New Order</label>
+            </div>
+            
+          </div>
+          <div class="form-group">
+            <label for="ItemKnownAs" class="col-sm-2 control-label">Known As</label>
+            <div class="col-sm-10">
+              <input type="text" class="form-control" id="ItemKnownAs" name="ItemKnownAs" placeholder="Website" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="ItemDescription" class="col-sm-2 control-label">Item Description</label>
+            <div class="col-sm-10">
+              <textarea class="form-control" rows="5" placeholder="Comet or Toilet Cleaner"
+                style="height: 100px" id="ItemDescription" name="ItemDescription"></textarea>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-2 control-label">Location / Store *</label>
+            <div class="col-sm-10" id="location-radio-btns">
+              {% comment %} <input type="radio" class="check" name="Location" value="1" />
+              <label>Radio 1</label>
+              <input type="radio" class="check" name="Location" value="2" />
+              <label>Radio 2</label>
+              <input type="radio" class="check" name="Location" value="3" />
+              <label>Radio 3</label> {% endcomment %}
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label class="col-sm-2 control-label">Category *</label>
+            <div class="col-sm-10" id="category-radio-btns">
+              {% comment %} <input type="radio" class="check" name="Category" value="1" />
+              <label>Radio 1</label>
+              <input type="radio" class="check" name="Category" value="2" />
+              <label>Radio 2</label>
+              <input type="radio" class="check" name="Category" value="3" />
+              <label>Radio 3</label> {% endcomment %}
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-2 control-label">Group *</label>
+            <div class="col-sm-10" id="group-radio-btns">
+              {% comment %} <input type="radio" class="check" name="Group" value="1" id=""/>
+              <label for="">Radio 1</label>
+              <input type="radio" class="check" name="Group" value="2" />
+              <label>Radio 2</label>
+              <input type="radio" class="check" name="Group" value="3" />
+              <label>Radio 3</label> {% endcomment %}
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-2 control-label">Status *</label>
+            <div class="col-sm-10" id="item-status-radio-btns">
+              <input type="radio" class="" name="ItemStatus" value="active" />
+              <label>Active</label>
+              <input type="radio" class="" name="ItemStatus" value="inactive" />
+              <label>In-active</label>
+              <input type="radio" class="" name="ItemStatus" value="expired" />
+              <label>Expired</label>
+            </div>
+            <!-- <label class="col-sm-2 control-label">This Request</label>
+            <input type="text" class="form-control" id="ThisRequest"  name="ThisRequest" placeholder="This Request" value="New"/> -->
+          </div>
+          <div class="form-group">
+            <label for="DateLastOrdered" class="col-sm-2 control-label">Date Expired</label>
+            <div class="col-sm-10">
+              <input type="date" class="form-control" id="DateLastOrdered" name="DateLastOrdered" placeholder="" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="DateExpired" class="col-sm-2 control-label">Date Last Ordered</label>
+            <div class="col-sm-10">
+              <input type="date" class="form-control" id="DateExpired" name="DateExpired" placeholder="" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="DateLastUsed" class="col-sm-2 control-label">Date Last Used</label>
+            <div class="col-sm-10">
+              <input type="date" class="form-control" id="DateLastUsed" name="DateLastUsed" placeholder="6/20/2018" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="Supplier" class="col-sm-2 control-label">Supplier/Mfg *</label>
+            <div class="col-sm-10">
+              {% comment %} <input type="text" class="form-control" id="Supplier" name="Supplier" placeholder="" /> {% endcomment %}
+              <select
+                class="form-control"
+                id="Supplier"
+                name="Supplier"
+                multiple="multiple"
+              >
+                <!-- <option value="0">Choose Supplier</option>
+                <option>2</option>
+                <option>3</option>
+                <option>4</option>
+                <option>5</option> -->
+              </select>
+            </div>
+          </div>
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="ModelYear" class="col-sm-4 control-label">Inv, No/ Prod. Year</label>
+                  <div class="col-sm-8">
+                    <input type="text" class="form-control" id="ModelYear"  name="ModelYear" placeholder="" />
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="PartNumber" class="col-sm-4 control-label">Part Number</label>
+                  <div class="col-sm-8">
+                    <input type="text" class="form-control" id="PartNumber"  name="PartNumber" placeholder="" />
+                  </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="BarCode" class="col-sm-4 control-label">Bar Code/Label</label>
+                <div class="col-sm-8">
+                  <input type="text" class="form-control" id="BarCode"  name="BarCode" placeholder="" />
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="DateLastReceived" class="col-sm-4 control-label">Date Received</label>
+                <div class="col-sm-8">
+                  <input type="date" class="form-control" id="DateLastReceived"  name="DateLastReceived" placeholder="" />
+                </div>
+              </div>
+
+              <div class="form-group">
+                <div class="col-sm-8">
+                  <input type="checkbox" class="check" id="SDSOnFile" name="SDSOnFile" checked style="margin-left: 140px;"/>
+                  <label for="SDSOnFile">SDS on file</label>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="LotNumber" class="col-sm-4 control-label">Lot Number</label>
+                <div class="col-sm-8">
+                  <input type="text" class="form-control" id="LotNumber"  name="LotNumber" placeholder="" />
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="SDSNameURL" class="col-sm-4 control-label">SDS File Name</label>
+                <div class="col-sm-8">
+                  <input type="text" class="form-control" id="SDSNameURL"  name="SDSNameURL" placeholder="" />
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="SDSLocationURL" class="col-sm-2 control-label">URL</label>
+            <div class="col-sm-10">
+              <input type="text" class="form-control" id="SDSLocationURL"  name="SDSLocationURL" placeholder="" />
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-sm-2"></div>
+            <div class="col-sm-2">
+              <img
+                src="https://image.made-in-china.com/2f0j00yosfPngahbcQ/Promotion-Oversized-Product-Package-Cardboard-Dummy-Boxes-Bin-for-Storage.jpg"
+                style="width: 100%" class="w-100 m-5" id="product-preview-img" />
+                <label for="Image">Select a product image:</label>
+                <input type="file" id="Image" name="Image">
+                <!-- <input type="file" id="myfile" name="myfile" oninput="product-preview-img.src=window.URL.createObjectURL(this.files[0])"> -->
+                <!-- <img src="" id="product-preview-img"/> -->
+                
+
+            </div>
+            <div class="col-sm-8">
+              <div class="form-group">
+                <label for="Stock" class="col-sm-4 control-label">Stock</label>
+                <div class="col-sm-8">
+                  <input type="text" class="form-control" id="Stock" name="Stock" placeholder="" NAME="stock"/>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="UnitsOnHand" class="col-sm-4 control-label">Unit on Hand</label>
+                <div class="col-sm-8">
+                  <div class="row">
+                    <div class="col-sm-6">
+                      <input type="text" class="form-control" id="UnitsOnHand" name="UnitsOnHand" placeholder="13" />
+                    </div>
+                    <div class="col-sm-6">
+                      <!-- <input type="text" class="form-control" id="UnitsMeasure" name="UnitsMeasure" placeholder="ea" /> -->
+                      <select name="UnitsMeasure" id="UnitsMeasure" style="border-width:1px; border-color:rgb(229, 235, 236); "></select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="form-group">
+                <div class="col-sm-12">
+                  <div class="row">
+                    <label for="DateModified" class="col-sm-4 control-label">Date Modified</label>
+                    <div class="col-sm-3 p-r-0">
+                      <input type="date" class="form-control" id="DateModified"  name="DateModified" placeholder="2" />
+                    </div>
+                    <label for="MinimumOrder" class="col-sm-3 control-label">Min. Order</label>
+                    <div class="col-sm-2 p-l-0">
+                      <input type="text" class="form-control" id="MinimumOrder" name="MinimumOrder" placeholder="" />
+                    </div> 
+                    <div class="col-sm-2 p-l-0">
+                     </div>
+                  </div>
+                </div>
+              </div>
+              <div class="form-group">
+                <div class="col-sm-12">
+                  <div class="row">
+                    <label for="ReorderLevel" class="col-sm-4 control-label" style="padding-top: 0">Reorder Level</label>
+                    <div class="col-sm-3 p-r-0">
+                      <input type="text" class="form-control" id="ReorderLevel"  name="ReorderLevel" placeholder="Last Order" />
+                    </div>
+                    <label for="StockUnitPrice" class="col-sm-3 control-label">Unit Price</label>
+                    <div class="col-sm-2 p-l-0">
+                      <input type="text" class="form-control" id="StockUnitPrice" name="StockUnitPrice" placeholder="" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="RequestApprovedBy" class="col-sm-4 control-label">Approved</label>
+                <div class="col-sm-8">
+                  <input type="text" class="form-control" id="RequestApprovedBy" name="RequestApprovedBy" placeholder="" />
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="RequestApprovedDate" class="col-sm-4 control-label">Date</label>
+                <div class="col-sm-8">
+                  <input type="date" class="form-control" id="RequestApprovedDate" name="RequestApprovedDate" placeholder="" />
+                </div>
+              </div>
+              <div class="form-group">
+                <div class="col-sm-8">
+                  <button type="button" class="btn btn-primary" id="new-entry-submit-btn" style="margin-top: 30px;">Submit</button>
+
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  <div id="snackbar">Some text some message..</div>
+  
+  {% endblock pageContent %}
+
+  
+{% block scripts %}
+  <script src="{% static 'app_frontend/js/enter_new_product_script.js' %}"></script>
+{% endblock scripts %}

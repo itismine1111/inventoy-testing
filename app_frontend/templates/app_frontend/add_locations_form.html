@@ -1,0 +1,82 @@
+{% extends 'app_frontend/add_forms_base.html' %}
+{% load static %}
+
+<!-- title -->
+{% block title %}
+Add Locations Form
+{% endblock title %}
+
+<!-- styles -->
+{% block styles %}
+
+{% endblock styles %}
+
+
+<!-- Details form -->
+{% block details-form %}
+
+<div class="form-group">
+
+    <div class="row">
+
+        <div class="col-md-2">
+            <label for="list-item-name" class="col-sm-2 control-label">Name</label>
+        </div>
+
+        <div class="col-md-10">
+            <input type="text" class="form-control" id="list-item-name" placeholder="Location.." readonly />
+        </div>
+    </div>
+    <div class="row"></div>
+
+    <div class="row" style="margin-top: 10px;">
+        <div class="col-md-3">
+            <a class="btn btn-success" style="display: none;" id="save-btn" href="javascript:void(0)">Save</a>
+        </div>
+        <div class="col-md-3">
+            <a class="btn btn-danger" style="display: none;" id="cancel-btn" href="javascript:void(0)">Cancel</a>
+        </div>
+        <div class="col-md-3"></div>
+        <div class="col-md-3">
+            <a class="btn btn-warning" id="edit-btn" href="javascript:void(0)">Edit</a>
+        </div>
+    </div>
+
+</div>
+
+{% endblock details-form %}
+
+
+<!-- New Entry form -->
+{% block new-entry-form %}
+
+<div class="form-group">
+    <!-- Name Label -->
+    <div class="row">
+        <label for="list-item-name_input" class="col-sm-1 control-label">Name:</label>
+    </div>
+
+    <!-- Name Input field -->
+    <div class="row">
+        <div class="col-md-12">
+            <input type="text" class="form-control" id="list-item-name-input" placeholder="Location.." />
+        </div>
+
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-3"></div>
+    <div class="col-md-6">
+        <a class="btn btn-warning" id="add-new-list-item" href="javascript:void(0)">Add new Location</a>
+    </div>
+    <div class="col-md-3"></div>
+</div>
+
+{% endblock new-entry-form %}
+
+
+
+{% block scripts %}
+<script src="{% static 'app_frontend/js/add_locations_form_script.js' %}"></script>
+{% endblock scripts %}
